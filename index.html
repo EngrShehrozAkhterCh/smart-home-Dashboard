@@ -1,523 +1,911 @@
-<!doctype html>
+// ==========================================
+// DASHBOARD HTML
+// ==========================================
+
+static const char DASHBOARD_HTML[] PROGMEM = R"rawliteral(
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0b1220">
-  <title>Smart Home Automation</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #0b1220;
-      --surface: #111c2d;
-      --surface-soft: #152238;
-      --surface-deep: #0d1727;
-      --line: #26364d;
-      --text: #edf3fb;
-      --muted: #91a2b8;
-      --blue: #63aaff;
-      --blue-strong: #2879d0;
-      --green: #35c98a;
-      --red: #ff6b75;
-      --amber: #f2bd55;
-      --radius: 16px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1220">
+<title>Smart Home Automation</title>
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--text);
-      background:
-        radial-gradient(ellipse at 12% 0%, rgba(42, 91, 145, .22), transparent 34rem),
-        radial-gradient(ellipse at 100% 20%, rgba(30, 100, 91, .10), transparent 30rem),
+<style>
+:root {
+    color-scheme: dark;
+    --bg: #0b1220;
+    --surface: #111c2d;
+    --surface-soft: #152238;
+    --surface-deep: #0d1727;
+    --line: #26364d;
+    --text: #edf3fb;
+    --muted: #91a2b8;
+    --blue: #63aaff;
+    --blue-strong: #2879d0;
+    --green: #35c98a;
+    --red: #ff6b75;
+    --amber: #f2bd55;
+    --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 28px 20px 42px;
+    color: var(--text);
+    background:
+        radial-gradient(ellipse at 12% 0%, rgba(42,91,145,.22), transparent 34rem),
+        radial-gradient(ellipse at 100% 20%, rgba(30,100,91,.10), transparent 30rem),
         var(--bg);
-      font: 14px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+    font: 14px/1.55 Inter, ui-sans-serif, system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
-    button, input { font: inherit; }
-    button {
-      border: 1px solid #344a66;
-      border-radius: 10px;
-      padding: 10px 14px;
-      color: var(--text);
-      background: #1b2d45;
-      font-weight: 650;
-      cursor: pointer;
-      transition: background .16s ease, border-color .16s ease, transform .16s ease;
-    }
-    button:hover:not(:disabled) {
-      background: #263e5d;
-      border-color: #54769e;
-      transform: translateY(-1px);
-    }
-    button:focus-visible, input:focus-visible {
-      outline: 2px solid var(--blue);
-      outline-offset: 2px;
-    }
-    button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-    .primary { background: var(--blue-strong); border-color: #438fdf; }
-    .primary:hover:not(:disabled) { background: #348be4; }
-    .success { background: #174b3c; border-color: #267b60; }
-    .success:hover:not(:disabled) { background: #1d624d; }
-    .danger { background: #512a36; border-color: #874656; }
-    .danger:hover:not(:disabled) { background: #693342; }
-    .subtle { background: transparent; border-color: var(--line); }
+button, input { font: inherit; }
 
-    .wrap { width: min(1120px, 100%); margin: 0 auto; padding: 30px 22px 48px; }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-      margin-bottom: 26px;
-    }
-    .brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
-    .brand-mark {
-      width: 44px; height: 44px; flex: 0 0 44px;
-      display: grid; place-items: center;
-      border: 1px solid #31557a;
-      border-radius: 13px;
-      color: #a9d3ff;
-      background: linear-gradient(145deg, #1b3858, #14243a);
-      font-size: 21px;
-    }
-    h1 { margin: 0; font-size: clamp(22px, 3vw, 29px); line-height: 1.2; letter-spacing: -.7px; }
-    .subtitle { margin-top: 5px; color: var(--muted); font-size: 13px; }
-    .connection {
-      display: inline-flex; align-items: center; gap: 9px;
-      padding: 8px 12px; border: 1px solid var(--line);
-      border-radius: 999px; background: rgba(17, 28, 45, .8);
-      color: var(--muted); font-size: 12px; white-space: nowrap;
-    }
-    .dot { width: 8px; height: 8px; display: inline-block; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px rgba(242,189,85,.10); }
-    .dot.ok { background: var(--green); box-shadow: 0 0 0 3px rgba(53,201,138,.12); }
-    .dot.bad { background: var(--red); box-shadow: 0 0 0 3px rgba(255,107,117,.12); }
+.container {
+    width: min(1120px, 100%);
+    margin: 0 auto;
+}
 
-    .card {
-      min-width: 0;
-      padding: 21px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: linear-gradient(155deg, rgba(21,34,56,.97), rgba(15,26,43,.97));
-      box-shadow: 0 14px 38px rgba(0,0,0,.16);
-    }
-    .login { width: min(420px, 100%); margin: 70px auto; }
-    .login h2, .card h2 { margin: 0; font-size: 16px; letter-spacing: -.2px; }
-    .muted { color: var(--muted); }
-    .login-copy { margin: 7px 0 22px; color: var(--muted); font-size: 13px; }
-    label { display: block; margin: 15px 0 7px; color: #b7c5d7; font-size: 12px; font-weight: 600; }
-    input {
-      width: 100%; padding: 12px 13px; color: var(--text);
-      background: var(--surface-deep); border: 1px solid var(--line);
-      border-radius: 10px; outline: none;
-    }
-    input:focus { border-color: var(--blue); }
-    .login button { width: 100%; margin-top: 18px; padding: 12px; }
-    .msg { min-height: 20px; margin-top: 12px; color: var(--amber); font-size: 12px; overflow-wrap: anywhere; }
-    .hidden { display: none !important; }
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 25px;
+}
 
-    .dashboard-head {
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 14px; margin-bottom: 17px;
-    }
-    .device-label { color: var(--muted); font-size: 13px; }
-    .device-label strong { color: var(--text); font-weight: 650; }
-    .section-heading { margin: 25px 0 12px; }
-    .section-heading h2 { margin: 0; font-size: 15px; }
-    .section-heading p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
 
-    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
-    .metric {
-      min-height: 118px; padding: 17px;
-      border: 1px solid var(--line); border-radius: 14px;
-      background: rgba(13,23,39,.82);
-    }
-    .metric-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .metric-label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
-    .metric-icon {
-      width: 29px; height: 29px; display: grid; place-items: center;
-      border-radius: 9px; color: #a8cefa; background: #1b304b; font-size: 14px;
-    }
-    .metric-value { margin-top: 13px; font-size: clamp(19px, 2.3vw, 25px); line-height: 1.2; font-weight: 750; letter-spacing: -.5px; overflow-wrap: anywhere; }
-    .metric-note { margin-top: 5px; color: var(--muted); font-size: 11px; }
+.brand-mark {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 46px;
+    border: 1px solid #31557a;
+    border-radius: 14px;
+    color: #a9d3ff;
+    background: linear-gradient(145deg, #1b3858, #14243a);
+    font-size: 23px;
+}
 
-    .sections { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 17px; }
-    .card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-    .card-heading p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 17px 0 14px; }
-    .actions button { font-size: 12px; padding: 9px 11px; }
-    .rows { margin-top: 9px; }
-    .row {
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 12px; padding: 11px 0; border-bottom: 1px solid rgba(38,54,77,.75);
-    }
-    .row:last-child { border-bottom: 0; padding-bottom: 2px; }
-    .row span:first-child { color: var(--muted); font-size: 12px; }
-    .row strong { font-size: 12px; text-align: right; overflow-wrap: anywhere; }
-    .ack-card { margin-top: 16px; }
-    .ack-card pre {
-      max-height: 190px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere;
-      margin: 13px 0 0; padding: 13px; border: 1px solid var(--line);
-      border-radius: 10px; color: #c9d8e9; background: #0a1422; font: 11px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
-    }
-    .ack-summary { margin-top: 10px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
-    .foot { margin-top: 23px; color: #71839a; text-align: center; font-size: 11px; }
-    .foot strong { color: #9aabc0; font-weight: 600; }
+h1 {
+    margin: 0;
+    font-size: clamp(22px, 3vw, 29px);
+    line-height: 1.2;
+    letter-spacing: -.7px;
+}
 
-    @media (max-width: 800px) {
-      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .sections { grid-template-columns: 1fr; }
+.subtitle {
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.connection {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 13px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(17,28,45,.85);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.card {
+    min-width: 0;
+    padding: 21px;
+    margin-bottom: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: linear-gradient(155deg, rgba(21,34,56,.97), rgba(15,26,43,.97));
+    box-shadow: 0 14px 38px rgba(0,0,0,.16);
+}
+
+.metric {
+    min-height: 126px;
+    padding: 17px;
+    margin: 0;
+    border-radius: 14px;
+    background: rgba(13,23,39,.82);
+}
+
+.metric-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.card h3 {
+    margin: 0;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+}
+
+.metric-icon {
+    width: 29px;
+    height: 29px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    color: #a8cefa;
+    background: #1b304b;
+    font-size: 15px;
+}
+
+.value {
+    margin-top: 13px;
+    font-size: clamp(21px, 2.4vw, 27px);
+    line-height: 1.2;
+    font-weight: 750;
+    letter-spacing: -.5px;
+    overflow-wrap: anywhere;
+}
+
+.unit {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.metric .subtitle {
+    margin-top: 6px;
+    font-size: 11px;
+}
+
+.section { margin-top: 17px; }
+
+.section-heading {
+    margin: 25px 0 12px;
+}
+
+.section-heading h2 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.section-heading p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.chart-card { padding-bottom: 16px; }
+
+.chart-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.chart-heading p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 13px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-line {
+    width: 17px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--blue);
+}
+
+.legend-line.on { background: var(--green); }
+.legend-line.off { background: var(--red); }
+
+.chart-container {
+    width: 100%;
+    height: 265px;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    margin-top: 12px;
+}
+
+.detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(38,54,77,.75);
+    font-size: 12px;
+}
+
+.detail:last-child { border-bottom: 0; }
+.detail span:first-child { color: var(--muted); }
+.detail strong { text-align: right; overflow-wrap: anywhere; }
+
+button {
+    border: 1px solid #344a66;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    background: #1b2d45;
+    font-weight: 650;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+
+button:hover:not(:disabled) {
+    background: #263e5d;
+    border-color: #54769e;
+    transform: translateY(-1px);
+}
+
+button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+}
+
+button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-green {
+    background: #174b3c;
+    border-color: #267b60;
+}
+.btn-green:hover:not(:disabled) { background: #1d624d; }
+
+.btn-red {
+    background: #512a36;
+    border-color: #874656;
+}
+.btn-red:hover:not(:disabled) { background: #693342; }
+
+.btn-gray, .subtle {
+    background: transparent;
+    border-color: var(--line);
+}
+
+.btn-orange {
+    background: #594125;
+    border-color: #896632;
+}
+
+input {
+    display: block;
+    width: 100%;
+    max-width: 390px;
+    padding: 12px 13px;
+    margin: 11px 0;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    outline: none;
+    background: var(--surface-deep);
+    color: var(--text);
+}
+
+input:focus { border-color: var(--blue); }
+
+.control-group {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(38,54,77,.75);
+}
+
+.control-group:last-child { border-bottom: 0; }
+
+.control-group p {
+    margin: 0 0 10px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .7px;
+}
+
+.control-group button { margin: 3px 5px 3px 0; }
+
+#adminPanel { display: none; }
+
+#loginMessage, #controlMessage {
+    min-height: 19px;
+    margin-top: 12px;
+    color: var(--amber);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.panel-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+}
+
+.panel-heading .subtitle { margin-top: 5px; }
+
+footer {
+    margin-top: 24px;
+    color: #71839a;
+    text-align: center;
+    font-size: 11px;
+}
+
+@media (max-width: 800px) {
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .details { grid-template-columns: 1fr; gap: 0; }
+}
+
+@media (max-width: 520px) {
+    body { padding: 20px 13px 32px; }
+    header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 13px;
+        margin-bottom: 20px;
     }
-    @media (max-width: 520px) {
-      .wrap { padding: 20px 13px 34px; }
-      .topbar { align-items: flex-start; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-      .connection { white-space: normal; }
-      .card { padding: 17px; }
-      .dashboard-head { align-items: flex-start; }
-      .dashboard-head .device-label { max-width: 70%; }
-      .metrics { gap: 9px; }
-      .metric { min-height: 108px; padding: 13px; }
-      .metric-icon { width: 26px; height: 26px; }
-      .actions button { flex: 1 1 auto; }
+    .card { padding: 17px; }
+    .metric { min-height: 112px; padding: 13px; }
+    .metric-icon { width: 26px; height: 26px; }
+    .chart-container { height: 225px; }
+    .chart-heading { flex-direction: column; }
+    .panel-heading { align-items: flex-start; }
+    .control-group button { margin-bottom: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
     }
-  </style>
+}
+</style>
 </head>
+
 <body>
-  <main class="wrap">
-    <header class="topbar">
-      <div class="brand">
+<div class="container">
+
+<header>
+    <div class="brand">
         <div class="brand-mark" aria-hidden="true">⌂</div>
         <div>
-          <h1>Smart Home Automation</h1>
-          <div class="subtitle">Remote monitoring and control</div>
+            <h1>Smart Home Automation</h1>
+            <p class="subtitle">ESP32 environmental monitoring and control</p>
         </div>
-      </div>
-      <div class="connection" aria-live="polite">
-        <i id="connectionDot" class="dot"></i>
-        <span id="connectionText">Not connected</span>
-      </div>
-    </header>
+    </div>
+    <div class="connection" id="connection">● CONNECTING...</div>
+</header>
 
-    <section id="loginCard" class="card login">
-      <h2>Admin sign in</h2>
-      <p class="login-copy">Sign in with the administrator account configured in Firebase Authentication.</p>
-      <form id="loginForm">
-        <label for="email">Email address</label>
-        <input id="email" type="email" autocomplete="username" placeholder="admin@example.com" required>
-        <label for="password">Password</label>
-        <input id="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
-        <button class="primary" id="loginButton" type="submit">Sign in to dashboard</button>
-      </form>
-      <div id="loginMessage" class="msg" role="status"></div>
-    </section>
+<div class="section-heading">
+    <h2>Live overview</h2>
+    <p>Real-time readings reported by your ESP32 controller</p>
+</div>
 
-    <section id="dashboard" class="hidden">
-      <div class="dashboard-head">
-        <div class="device-label">CONNECTED DEVICE<br><strong>ESP32 Smart Home Controller</strong></div>
-        <button id="logoutButton" class="subtle" type="button">Sign out</button>
-      </div>
-
-      <div class="section-heading">
-        <h2>Live overview</h2>
-        <p>Latest status reported by your ESP32 controller</p>
-      </div>
-
-      <div class="metrics">
-        <div class="metric">
-          <div class="metric-top"><span class="metric-label">Relay state</span><span class="metric-icon">⏻</span></div>
-          <div class="metric-value" id="relayState">—</div>
-          <div class="metric-note">Reported output state</div>
+<div class="grid">
+    <div class="card metric">
+        <div class="metric-top">
+            <h3>Ultrasonic distance</h3>
+            <span class="metric-icon">⌁</span>
         </div>
-        <div class="metric">
-          <div class="metric-top"><span class="metric-label">Operating mode</span><span class="metric-icon">⇄</span></div>
-          <div class="metric-value" id="mode">—</div>
-          <div class="metric-note">Automatic or manual</div>
-        </div>
-        <div class="metric">
-          <div class="metric-top"><span class="metric-label">Distance</span><span class="metric-icon">⌁</span></div>
-          <div class="metric-value" id="distance">—</div>
-          <div class="metric-note" id="sensorValidity">Sensor status unknown</div>
-        </div>
-        <div class="metric">
-          <div class="metric-top"><span class="metric-label">Wi-Fi signal</span><span class="metric-icon">◔</span></div>
-          <div class="metric-value" id="rssi">—</div>
-          <div class="metric-note" id="deviceIp">IP: —</div>
-        </div>
-      </div>
+        <div class="value"><span id="distance">--</span> <span class="unit">cm</span></div>
+        <p class="subtitle" id="sensorStatus">Waiting for sensor...</p>
+    </div>
 
-      <div class="section-heading">
-        <h2>System controls</h2>
-        <p>Manage permissions, operating mode and relay output</p>
-      </div>
+    <div class="card metric">
+        <div class="metric-top">
+            <h3>Relay status</h3>
+            <span class="metric-icon">⏻</span>
+        </div>
+        <div class="value" id="relay">--</div>
+        <p class="subtitle">Reported output state</p>
+    </div>
 
-      <div class="sections">
-        <section class="card">
-          <div class="card-heading">
-            <div>
-              <h2>Device permissions</h2>
-              <p>Allow a function before using its related operating mode</p>
+    <div class="card metric">
+        <div class="metric-top">
+            <h3>Operating mode</h3>
+            <span class="metric-icon">⇄</span>
+        </div>
+        <div class="value" id="mode">--</div>
+        <p class="subtitle">Automation mode</p>
+    </div>
+
+    <div class="card metric">
+        <div class="metric-top">
+            <h3>Wi-Fi signal</h3>
+            <span class="metric-icon">◔</span>
+        </div>
+        <div class="value"><span id="rssi">--</span> <span class="unit">dBm</span></div>
+        <p class="subtitle" id="ip">IP: --</p>
+    </div>
+</div>
+
+<div class="section-heading">
+    <h2>Sensor activity</h2>
+    <p>Recent ultrasonic distance readings and automation thresholds</p>
+</div>
+
+<div class="card chart-card">
+    <div class="chart-heading">
+        <div>
+            <h3>Distance history</h3>
+            <p>Latest 60 valid sensor readings</p>
+        </div>
+        <div class="chart-legend">
+            <span class="legend-item"><i class="legend-line"></i> Distance</span>
+            <span class="legend-item"><i class="legend-line on"></i> ON threshold</span>
+            <span class="legend-item"><i class="legend-line off"></i> OFF threshold</span>
+        </div>
+    </div>
+    <div class="chart-container">
+        <canvas id="distanceChart"></canvas>
+    </div>
+</div>
+
+<div class="section-heading">
+    <h2>System information</h2>
+    <p>Permissions, safety state and network information</p>
+</div>
+
+<div class="card section">
+    <div class="details">
+        <div>
+            <div class="detail">
+                <span>Sensor permission</span>
+                <strong id="sensorPermission">--</strong>
             </div>
-          </div>
-          <div class="actions">
-            <button class="success command" data-command="sensor on" type="button">Allow sensor</button>
-            <button class="danger command" data-command="sensor off" type="button">Deny sensor</button>
-            <button class="success command" data-command="manual on" type="button">Allow manual</button>
-            <button class="danger command" data-command="manual off" type="button">Deny manual</button>
-          </div>
-          <div class="rows">
-            <div class="row"><span>Sensor permission</span><strong id="sensorPermission">—</strong></div>
-            <div class="row"><span>Manual permission</span><strong id="manualPermission">—</strong></div>
-            <div class="row"><span>Master lockout</span><strong id="lockout">—</strong></div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-heading">
-            <div>
-              <h2>Operating controls</h2>
-              <p>Commands are sent securely through Firebase to the ESP32</p>
+            <div class="detail">
+                <span>Manual permission</span>
+                <strong id="manualPermission">--</strong>
             </div>
-          </div>
-          <div class="actions">
-            <button class="command" data-command="mode auto" type="button">AUTO mode</button>
-            <button class="command" data-command="mode manual" type="button">MANUAL mode</button>
-            <button class="success command" data-command="relay on" type="button">Relay ON</button>
-            <button class="danger command" data-command="relay off" type="button">Relay OFF</button>
-            <button class="danger command" data-command="lock on" type="button">Enable lockout</button>
-            <button class="success command" data-command="lock off" type="button">Disable lockout</button>
-          </div>
-          <div id="commandMessage" class="msg" role="status">Waiting for device data.</div>
-          <div class="rows">
-            <div class="row"><span>Distance threshold</span><strong id="threshold">—</strong></div>
-            <div class="row"><span>Last device update</span><strong id="updatedAt">—</strong></div>
-          </div>
-        </section>
-      </div>
-
-      <section class="card ack-card">
-        <div class="card-heading">
-          <div>
-            <h2>Command activity</h2>
-            <p>Latest acknowledgement received from the ESP32</p>
-          </div>
+            <div class="detail">
+                <span>Master lockout</span>
+                <strong id="lockout">--</strong>
+            </div>
         </div>
-        <div id="ackSummary" class="ack-summary">No acknowledgement received yet.</div>
-        <pre id="ackRaw">Waiting for acknowledgement…</pre>
-      </section>
+        <div>
+            <div class="detail">
+                <span>ON threshold</span>
+                <strong id="onThreshold">--</strong>
+            </div>
+            <div class="detail">
+                <span>OFF threshold</span>
+                <strong id="offThreshold">--</strong>
+            </div>
+            <div class="detail">
+                <span>Sensor status</span>
+                <strong id="sensorValid">--</strong>
+            </div>
+        </div>
+        <div>
+            <div class="detail">
+                <span>Wi-Fi</span>
+                <strong id="wifiStatus">--</strong>
+            </div>
+            <div class="detail">
+                <span>Last update</span>
+                <strong id="lastUpdate">--</strong>
+            </div>
+        </div>
+    </div>
+</div>
 
-      <div class="foot">
-        Live data via Firebase Realtime Database · Admin authentication required for controls<br>
-        <strong>Note:</strong> Relay state is the value reported by firmware; verify physical switching with the relay hardware connected.
-      </div>
-    </section>
-  </main>
+<div class="section-heading">
+    <h2>Administrator access</h2>
+    <p>Sign in to manage automation and safety settings</p>
+</div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCBmFSv8HGBl8z4poDeVVXnUNagUGVlyYs",
-      authDomain: "smarthomeautomation-48c86.firebaseapp.com",
-      databaseURL: "https://smarthomeautomation-48c86-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "smarthomeautomation-48c86",
-      storageBucket: "smarthomeautomation-48c86.firebasestorage.app",
-      messagingSenderId: "30852921121",
-      appId: "1:30852921121:web:d531286477e1c1e759b060",
-      measurementId: "G-VB8YTGWMLK"
-    };
+<div class="card section" id="loginPanel">
+    <h3>Administrator login</h3>
+    <p class="subtitle">Authorized access is required to change system settings.</p>
 
-    const ADMIN_UID = "wO04AITuvhS80aLhWIiFQEK2NMu2";
-    const DEVICE_UID = "YChbLUhMLGVlPl0XP22wS9ytjuY2";
-    const DEVICE_PATH = "devices/" + DEVICE_UID;
+    <input type="text" id="username" placeholder="Admin username"
+        autocomplete="username">
+    <input type="password" id="password" placeholder="Admin password"
+        autocomplete="current-password">
 
-    firebase.initializeApp(firebaseConfig);
+    <button class="primary" onclick="adminLogin()">SIGN IN</button>
+    <p id="loginMessage"></p>
+</div>
 
-    const auth = firebase.auth();
-    const db = firebase.database();
+<div class="card section" id="adminPanel">
+    <div class="panel-heading">
+        <div>
+            <h3>Admin control panel</h3>
+            <p class="subtitle">Authorized system controls</p>
+        </div>
+        <button class="btn-gray" onclick="adminLogout()">LOGOUT</button>
+    </div>
 
-    // Keep admin signed in across browser restarts.
-    const persistenceReady = auth.setPersistence(
-      firebase.auth.Auth.Persistence.LOCAL
-    );
+    <div class="control-group">
+        <p>OPERATING MODE</p>
+        <button class="btn-green" onclick="sendCommand('mode auto')">AUTO MODE</button>
+        <button onclick="sendCommand('mode manual')">MANUAL MODE</button>
+    </div>
 
-    const $ = id => document.getElementById(id);
-    let telemetryListener = null;
-    let ackListener = null;
-    let pendingCommandId = null;
-    let commandTimeout = null;
+    <div class="control-group">
+        <p>MANUAL RELAY CONTROL</p>
+        <button class="btn-green" id="relayOnButton"
+            onclick="sendCommand('relay on')">RELAY ON</button>
+        <button class="btn-red" id="relayOffButton"
+            onclick="sendCommand('relay off')">RELAY OFF</button>
+        <p class="subtitle">Relay buttons are enabled only when manual control is permitted and the system is in MANUAL mode.</p>
+    </div>
 
-    function setConnection(ok, text) {
-      $("connectionDot").className = "dot " + (ok ? "ok" : "bad");
-      $("connectionText").textContent = text;
-    }
+    <div class="control-group">
+        <p>SENSOR PERMISSION</p>
+        <button class="btn-green" onclick="sendCommand('sensor on')">ALLOW SENSOR</button>
+        <button class="btn-red" onclick="sendCommand('sensor off')">DENY SENSOR</button>
+    </div>
 
-    function showMessage(id, text, color) {
-      $(id).textContent = text;
-      if (color) $(id).style.color = color;
-    }
+    <div class="control-group">
+        <p>MANUAL CONTROL PERMISSION</p>
+        <button class="btn-green" onclick="sendCommand('manual on')">ALLOW MANUAL</button>
+        <button class="btn-red" onclick="sendCommand('manual off')">DENY MANUAL</button>
+    </div>
 
-    function display(value, suffix = "") {
-      if (value === undefined || value === null || value === "") return "—";
-      return String(value) + suffix;
-    }
+    <div class="control-group">
+        <p>MASTER SAFETY LOCKOUT</p>
+        <button class="btn-red" onclick="sendCommand('lock on')">ENABLE LOCKOUT</button>
+        <button class="btn-orange" onclick="sendCommand('lock off')">DISABLE LOCKOUT</button>
+    </div>
 
-    function yesNo(value) {
-      return value === true ? "ENABLED" : value === false ? "DISABLED" : "—";
-    }
+    <p id="controlMessage"></p>
+</div>
 
-    function formatTimestamp(value) {
-      if (typeof value !== "number" || !Number.isFinite(value)) return "—";
-      const d = new Date(value * 1000);
-      return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString();
-    }
+<footer>
+    Smart Home Automation System · ESP32 local dashboard
+</footer>
+</div>
 
-    function renderTelemetry(t) {
-      $("relayState").textContent = display(t.relay_state, "").toUpperCase();
-      $("mode").textContent = display(t.mode, "").toUpperCase();
-      $("distance").textContent = t.distance_cm == null ? "—" : Number(t.distance_cm).toFixed(1) + " cm";
-      $("sensorValidity").textContent = t.sensor_valid === true ? "Sensor valid" : "Sensor invalid / unavailable";
-      $("rssi").textContent = t.rssi == null ? "—" : t.rssi + " dBm";
-      $("deviceIp").textContent = "IP: " + display(t.ip);
-      $("sensorPermission").textContent = yesNo(t.sensor_permission);
-      $("manualPermission").textContent = yesNo(t.manual_permission);
-      $("lockout").textContent = t.master_lockout === true ? "ACTIVE" : t.master_lockout === false ? "INACTIVE" : "—";
-      $("threshold").textContent = t.threshold_cm == null ? "—" : t.threshold_cm + " cm";
-      $("updatedAt").textContent = formatTimestamp(t.updated_at);
-    }
+<script>
+// ==========================================
+// AUTHENTICATION STATE
+// ==========================================
 
-    function detachListeners() {
-      if (telemetryListener) db.ref(DEVICE_PATH + "/telemetry").off("value", telemetryListener);
-      if (ackListener) db.ref(DEVICE_PATH + "/ack").off("value", ackListener);
-      telemetryListener = null;
-      ackListener = null;
-    }
+let adminToken = "";
 
-    function attachListeners() {
-      detachListeners();
+const history = [];
+const MAX_POINTS = 60;
 
-      const telemetryRef = db.ref(DEVICE_PATH + "/telemetry");
-      telemetryListener = snap => {
-        const data = snap.val();
-        if (data) {
-          renderTelemetry(data);
-          setConnection(true, "Firebase connected · telemetry received");
-        } else {
-          setConnection(true, "Firebase connected · waiting for telemetry");
-        }
-      };
-      telemetryRef.on("value", telemetryListener, error => {
-        setConnection(false, "Telemetry read failed: " + error.message);
-      });
+const canvas = document.getElementById("distanceChart");
+const ctx = canvas.getContext("2d");
 
-      const ackRef = db.ref(DEVICE_PATH + "/ack");
-      ackListener = snap => {
-        const ack = snap.val();
-        $("ackRaw").textContent = ack ? JSON.stringify(ack, null, 2) : "No acknowledgement received yet.";
-        if (ack) {
-          const id = ack.command_id || "unknown";
-          const status = ack.success === true ? "SUCCESS" : ack.success === false ? "FAILED" : (ack.status || "RECEIVED");
-          $("ackSummary").textContent = "Command ID: " + id + " · Status: " + status;
+let latestStatus = null;
 
-          if (pendingCommandId && id === pendingCommandId) {
-            clearTimeout(commandTimeout);
-            pendingCommandId = null;
-            document.querySelectorAll(".command").forEach(b => b.disabled = false);
-            showMessage("commandMessage", "ESP32 acknowledgement received: " + status, status === "SUCCESS" ? "var(--green)" : "var(--amber)");
-          }
-        }
-      };
-      ackRef.on("value", ackListener, error => {
-        $("ackSummary").textContent = "Acknowledgement read failed: " + error.message;
-      });
-    }
+function updateText(id, value) {
+    document.getElementById(id).textContent = value;
+}
 
-    async function issueCommand(command) {
-      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
-        showMessage("commandMessage", "Admin authentication required.", "var(--red)");
+// ==========================================
+// ADMIN LOGIN
+// ==========================================
+
+async function adminLogin() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!username || !password) {
+        updateText("loginMessage", "Enter username and password.");
         return;
-      }
-
-      if (pendingCommandId) {
-        showMessage("commandMessage", "Wait for the previous command acknowledgement.", "var(--amber)");
-        return;
-      }
-
-      const commandId = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(16).slice(2));
-      const payload = {
-        command: command,
-        command_id: commandId,
-        created_at: Math.floor(Date.now() / 1000)
-      };
-
-      document.querySelectorAll(".command").forEach(b => b.disabled = true);
-      pendingCommandId = commandId;
-      showMessage("commandMessage", "Sending: " + command, "var(--amber)");
-
-      try {
-        await db.ref(DEVICE_PATH + "/commands").set(payload);
-        commandTimeout = setTimeout(() => {
-          if (pendingCommandId === commandId) {
-            pendingCommandId = null;
-            document.querySelectorAll(".command").forEach(b => b.disabled = false);
-            showMessage("commandMessage", "No matching acknowledgement yet. Check ESP32 Firebase polling and Serial Monitor.", "var(--amber)");
-          }
-        }, 15000);
-      } catch (error) {
-        clearTimeout(commandTimeout);
-        pendingCommandId = null;
-        document.querySelectorAll(".command").forEach(b => b.disabled = false);
-        showMessage("commandMessage", "Command write failed: " + error.message, "var(--red)");
-      }
     }
 
-    $("loginForm").addEventListener("submit", async event => {
-      event.preventDefault();
-      $("loginButton").disabled = true;
-      showMessage("loginMessage", "Signing in…", "var(--amber)");
+    adminToken = "Basic " + btoa(username + ":" + password);
 
-      try {
-        await persistenceReady;
-        const result = await auth.signInWithEmailAndPassword(
-          $("email").value.trim(),
-          $("password").value
+    try {
+        const response = await fetch("/api/admin/check", {
+            method: "GET",
+            headers: { "Authorization": adminToken },
+            cache: "no-store"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || "Login failed");
+        }
+
+        document.getElementById("loginPanel").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+        document.getElementById("password").value = "";
+
+        updateText("controlMessage", "Admin authenticated.");
+        updateText("loginMessage", "");
+        updateAdminButtons();
+
+    } catch (error) {
+        console.error("[LOGIN ERROR]", error);
+        adminToken = "";
+        updateText("loginMessage", "Login error: " + error.message);
+    }
+}
+
+// ==========================================
+// ADMIN LOGOUT
+// ==========================================
+
+function adminLogout() {
+    adminToken = "";
+
+    document.getElementById("adminPanel").style.display = "none";
+    document.getElementById("loginPanel").style.display = "block";
+
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+
+    updateText("loginMessage", "Logged out.");
+}
+
+// ==========================================
+// SEND CONTROL COMMAND
+// ==========================================
+
+async function sendCommand(command) {
+    if (!adminToken) {
+        adminLogout();
+        return;
+    }
+
+    updateText("controlMessage", "Sending command...");
+
+    try {
+        const response = await fetch("/api/control", {
+            method: "POST",
+            headers: {
+                "Authorization": adminToken,
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({ command: command })
+        });
+
+        const data = await response.json();
+
+        if (response.status === 401) {
+            adminLogout();
+            throw new Error("Authentication expired.");
+        }
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || "Command rejected.");
+        }
+
+        updateText("controlMessage", data.message);
+        await refreshDashboard();
+
+    } catch (error) {
+        updateText("controlMessage", error.message);
+    }
+}
+
+// ==========================================
+// CONTROL BUTTON STATES
+// ==========================================
+
+function updateAdminButtons() {
+    if (!latestStatus || !adminToken) return;
+
+    const locked = latestStatus.master_lockout;
+    const manualAllowed = latestStatus.manual_permission;
+    const manualMode = latestStatus.mode === "MANUAL";
+
+    document.getElementById("relayOnButton").disabled =
+        locked || !manualAllowed || !manualMode;
+
+    document.getElementById("relayOffButton").disabled =
+        locked || !manualAllowed || !manualMode;
+}
+
+// ==========================================
+// DISTANCE CHART
+// ==========================================
+
+function drawChart() {
+    const rect = canvas.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const dpr = window.devicePixelRatio || 1;
+
+    if (!width || !height) return;
+
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+
+    const left = 42;
+    const right = width - 12;
+    const top = 15;
+    const bottom = height - 25;
+    const chartHeight = bottom - top;
+    const chartWidth = right - left;
+    const maxValue = 400;
+
+    function y(value) {
+        return bottom - (value / maxValue) * chartHeight;
+    }
+
+    ctx.strokeStyle = "#26364d";
+    ctx.fillStyle = "#91a2b8";
+    ctx.font = "11px Arial";
+
+    [0, 100, 200, 300, 400].forEach(value => {
+        const py = y(value);
+        ctx.beginPath();
+        ctx.moveTo(left, py);
+        ctx.lineTo(right, py);
+        ctx.stroke();
+        ctx.fillText(value, 5, py + 4);
+    });
+
+    const threshold = latestStatus
+        ? Number(latestStatus.threshold_cm)
+        : 50;
+
+    function drawThreshold(value, color) {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5, 5]);
+        ctx.moveTo(left, y(value));
+        ctx.lineTo(right, y(value));
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    drawThreshold(threshold, "#35c98a");
+    drawThreshold(threshold + 5, "#ff6b75");
+
+    if (history.length > 0) {
+        ctx.beginPath();
+        ctx.strokeStyle = "#63aaff";
+        ctx.lineWidth = 2;
+
+        history.forEach((value, index) => {
+            const x = left +
+                (index / Math.max(MAX_POINTS - 1, 1)) * chartWidth;
+            const py = y(value);
+
+            if (index === 0) ctx.moveTo(x, py);
+            else ctx.lineTo(x, py);
+        });
+
+        ctx.stroke();
+    }
+}
+
+// ==========================================
+// LIVE DASHBOARD UPDATE
+// ==========================================
+
+async function refreshDashboard() {
+    try {
+        const response = await fetch("/api/status", {
+            cache: "no-store"
+        });
+
+        if (!response.ok) throw new Error("API unavailable");
+
+        const data = await response.json();
+        latestStatus = data;
+
+        updateText("connection", "● DEVICE ONLINE");
+
+        updateText(
+            "wifiStatus",
+            data.wifi_connected ? "CONNECTED" : "DISCONNECTED"
         );
 
-        if (result.user.uid !== ADMIN_UID) {
-          await auth.signOut();
-          throw new Error("This account is not the authorized admin.");
+        updateText(
+            "distance",
+            data.sensor_valid
+                ? Number(data.distance_cm).toFixed(1)
+                : "--"
+        );
+
+        updateText(
+            "sensorStatus",
+            data.sensor_valid ? "Sensor operational" : "Sensor invalid"
+        );
+
+        updateText("relay", data.relay);
+        updateText("mode", data.mode);
+        updateText("rssi", data.rssi);
+        updateText("ip", "IP: " + data.ip);
+
+        updateText(
+            "sensorPermission",
+            data.sensor_permission ? "GRANTED" : "DENIED"
+        );
+
+        updateText(
+            "manualPermission",
+            data.manual_permission ? "GRANTED" : "DENIED"
+        );
+
+        updateText(
+            "lockout",
+            data.master_lockout ? "ACTIVE" : "INACTIVE"
+        );
+
+        updateText(
+            "onThreshold",
+            Number(data.threshold_cm).toFixed(1) + " cm"
+        );
+
+        updateText(
+            "offThreshold",
+            (Number(data.threshold_cm) + 5).toFixed(1) + " cm"
+        );
+
+        updateText(
+            "sensorValid",
+            data.sensor_valid ? "READY" : "INVALID"
+        );
+
+        updateText("lastUpdate", new Date().toLocaleTimeString());
+
+        if (data.sensor_valid) {
+            history.push(Number(data.distance_cm));
+            if (history.length > MAX_POINTS) history.shift();
         }
 
-        $("password").value = "";
-        showMessage("loginMessage", "");
-      } catch (error) {
-        showMessage("loginMessage", error.message, "var(--red)");
-      } finally {
-        $("loginButton").disabled = false;
-      }
-    });
+        updateAdminButtons();
+        drawChart();
 
-    $("logoutButton").addEventListener("click", () => auth.signOut());
+    } catch (error) {
+        updateText("connection", "● DEVICE OFFLINE");
+        updateText("sensorStatus", "Unable to reach ESP32");
+    }
+}
 
-    document.querySelectorAll(".command").forEach(button => {
-      button.addEventListener("click", () => issueCommand(button.dataset.command));
-    });
+window.addEventListener("resize", drawChart);
 
-    auth.onAuthStateChanged(user => {
-      if (user && user.uid === ADMIN_UID) {
-        $("loginCard").classList.add("hidden");
-        $("dashboard").classList.remove("hidden");
-        setConnection(false, "Connecting to Firebase…");
-        attachListeners();
-      } else {
-        detachListeners();
-        $("dashboard").classList.add("hidden");
-        $("loginCard").classList.remove("hidden");
-        if (user) auth.signOut();
-        setConnection(false, "Signed out");
-      }
-    });
-  </script>
+refreshDashboard();
+setInterval(refreshDashboard, 1000);
+</script>
 </body>
 </html>
+)rawliteral";
