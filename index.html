@@ -115,9 +115,15 @@
     const DEVICE_UID = "YChbLUhMLGVlPl0XP22wS9ytjuY2";
     const DEVICE_PATH = "devices/" + DEVICE_UID;
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+   firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+// Keep admin signed in across browser restarts.
+const persistenceReady = auth.setPersistence(
+  firebase.auth.Auth.Persistence.LOCAL
+);
 
     const $ = id => document.getElementById(id);
     let telemetryListener = null;
@@ -241,7 +247,7 @@
       $("loginButton").disabled = true;
       showMessage("loginMessage", "Signing in…", "var(--amber)");
       try {
-        const result = await auth.signInWithEmailAndPassword($("email").value.trim(), $("password").value);
+        await persistenceReady;  const result = await auth.signInWithEmailAndPassword(   $("email").value.trim(),   $("password").value );
         if (result.user.uid !== ADMIN_UID) {
           await auth.signOut();
           throw new Error("This account is not the authorized admin.");
