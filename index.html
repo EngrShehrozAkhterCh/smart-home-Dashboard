@@ -2,938 +2,1989 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Home Automation</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>SmartHome | Control Center</title>
 
-  <style>
-    * { box-sizing: border-box; }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-    body {
-      margin: 0;
-      padding: 20px;
-      background: #0b1220;
-      color: #e5e7eb;
-      font-family: Arial, sans-serif;
-    }
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    .container {
-      max-width: 1050px;
-      margin: auto;
-    }
+<style>
+:root {
+  --bg:#0b1220;
+  --sidebar:#0e1828;
+  --panel:#111c2e;
+  --panel2:#152238;
+  --line:#24334a;
+  --text:#edf3fc;
+  --muted:#8fa1b9;
+  --blue:#5b9cff;
+  --green:#39d6a0;
+  --amber:#f7bd58;
+  --red:#f87171;
+  --violet:#aa91ff;
+}
 
-    h1 { margin-bottom: 6px; }
-    h2 { font-size: 18px; margin-top: 0; }
+* { box-sizing:border-box; }
 
-    .muted { color: #94a3b8; font-size: 13px; }
-    .hidden { display: none !important; }
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"DM Sans",sans-serif;
+  font-size:14px;
+}
 
-    .card {
-      background: #111c2e;
-      border: 1px solid #26364e;
-      border-radius: 12px;
-      padding: 18px;
-      margin: 16px 0;
-    }
+button,input { font:inherit; }
+button { cursor:pointer; }
+button:disabled { opacity:.4; cursor:not-allowed; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 12px;
-    }
+.hidden { display:none!important; }
 
-    .metric {
-      background: #17243a;
-      border-radius: 10px;
-      padding: 15px;
-    }
+.app-shell {
+  min-height:100vh;
+  display:flex;
+}
 
-    .metric .value {
-      font-size: 23px;
-      font-weight: bold;
-      margin-top: 8px;
-      overflow-wrap: anywhere;
-    }
+.sidebar {
+  width:245px;
+  flex-shrink:0;
+  background:var(--sidebar);
+  border-right:1px solid var(--line);
+  padding:27px 17px;
+  display:flex;
+  flex-direction:column;
+}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 7px 0 12px;
-      border-radius: 8px;
-      border: 1px solid #334155;
-      background: #0b1220;
-      color: white;
-    }
+.brand {
+  display:flex;
+  align-items:center;
+  gap:11px;
+  color:var(--text);
+  text-decoration:none;
+  font:800 20px Manrope,sans-serif;
+  letter-spacing:-.8px;
+  margin:0 8px 45px;
+}
 
-    button {
-      padding: 11px 15px;
-      margin: 5px 5px 5px 0;
-      border: 0;
-      border-radius: 8px;
-      cursor: pointer;
-      color: white;
-      background: #2563eb;
-      font-weight: bold;
-    }
+.brand-mark {
+  display:grid;
+  place-items:center;
+  width:39px;
+  height:39px;
+  border-radius:12px;
+  background:linear-gradient(135deg,#397ce0,#6b9eff);
+  font-size:25px;
+  color:white;
+}
 
-    button:hover { opacity: .88; }
-    button:disabled {
-      opacity: .4;
-      cursor: not-allowed;
-    }
+.brand-light { font-weight:500;color:#9fb2cc; }
 
-    .green { background: #15803d; }
-    .red { background: #b91c1c; }
-    .orange { background: #c2410c; }
-    .gray { background: #475569; }
+.brand small {
+  display:block;
+  font:600 9px "DM Sans";
+  letter-spacing:2px;
+  color:#71849e;
+  margin-top:2px;
+}
 
-    .status {
-      display: inline-block;
-      padding: 5px 9px;
-      border-radius: 20px;
-      background: #334155;
-      font-size: 12px;
-    }
+.nav-label,.eyebrow {
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1.7px;
+  color:#71849e;
+}
 
-    .success { color: #4ade80; }
-    .danger { color: #f87171; }
-    .warning { color: #fbbf24; }
+.nav-label { margin:0 10px 13px; }
 
-    pre {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      background: #0b1220;
-      padding: 12px;
-      border-radius: 8px;
-      color: #cbd5e1;
-      min-height: 35px;
-    }
+.nav-item {
+  padding:12px 13px;
+  border-radius:9px;
+  color:#9aabc1;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  margin:3px 0;
+  font-weight:600;
+}
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+.nav-item span { font-size:18px; }
 
-    label {
-      font-size: 13px;
-      color: #cbd5e1;
-    }
+.nav-item:hover,.nav-item.active {
+  background:#1a3150;
+  color:#dceaff;
+}
 
-    #message {
-      margin-top: 10px;
-      font-size: 13px;
-      overflow-wrap: anywhere;
-    }
-  </style>
+.sidebar-bottom { margin-top:auto; }
+
+.device-mini {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:13px;
+  background:#14243a;
+  border:1px solid var(--line);
+  border-radius:11px;
+  margin-bottom:19px;
+}
+
+.device-mini b,.profile b {
+  display:block;
+  font-size:12px;
+}
+
+.device-mini small,.profile small {
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:3px;
+}
+
+.pulse,.live-dot {
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--amber);
+  display:inline-block;
+  box-shadow:0 0 0 4px #f7bd581c;
+}
+
+.pulse.online,.live-dot.online {
+  background:var(--green);
+  box-shadow:0 0 0 4px #39d6a01c;
+}
+
+.profile {
+  border-top:1px solid var(--line);
+  padding:19px 3px 0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.avatar {
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:#29466d;
+  color:#d8e8ff;
+  display:grid;
+  place-items:center;
+  font-weight:700;
+}
+
+.main {
+  max-width:1600px;
+  width:100%;
+  padding:29px 38px 22px;
+  margin:auto;
+  min-width:0;
+}
+
+.topbar,.top-actions,.welcome-row,.panel-heading,.chart-meta,.setting-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.topbar h1 {
+  font:700 25px Manrope;
+  margin:6px 0 0;
+  letter-spacing:-.7px;
+}
+
+.top-actions { gap:12px; }
+
+.connection {
+  color:#d5e3f5;
+  font-size:11px;
+  background:#14243a;
+  padding:8px 11px;
+  border-radius:20px;
+}
+
+.connection i {
+  display:inline-block;
+  width:6px;
+  height:6px;
+  background:var(--amber);
+  border-radius:50%;
+  margin-right:6px;
+}
+
+.connection.online i { background:var(--green); }
+
+.icon-btn {
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:#a9bad0;
+  border-radius:9px;
+  padding:9px 12px;
+}
+
+.welcome-row { margin:32px 0 20px; }
+
+.welcome-row h2 {
+  font:700 17px Manrope;
+  margin:0 0 5px;
+}
+
+.welcome-row p,.panel-heading p {
+  color:var(--muted);
+  font-size:11px;
+  margin:0;
+}
+
+.date-chip {
+  color:#a8bad1;
+  border:1px solid var(--line);
+  padding:9px 12px;
+  border-radius:8px;
+  font-size:11px;
+}
+
+.stat-grid {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+}
+
+.stat-card,.panel {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:13px;
+}
+
+.stat-card { padding:17px 18px; }
+
+.stat-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:#8295af;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1px;
+  gap:5px;
+}
+
+.stat-icon {
+  width:31px;
+  height:31px;
+  border-radius:9px;
+  display:grid;
+  place-items:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+
+.blue { background:#1b3b62;color:var(--blue); }
+.amber { background:#49391e;color:var(--amber); }
+.green { background:#164536;color:var(--green); }
+.violet { background:#352d58;color:var(--violet); }
+
+.stat-value {
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  margin:11px 0 7px;
+  min-height:33px;
+}
+
+.stat-value strong {
+  font:700 27px Manrope;
+  letter-spacing:-1px;
+  overflow-wrap:anywhere;
+}
+
+.stat-value em {
+  font-style:normal;
+  color:#9bacc2;
+  font-size:12px;
+}
+
+.status-word { font-size:21px!important; }
+
+.stat-foot {
+  color:#8193aa;
+  font-size:10px;
+}
+
+.live-dot {
+  background:var(--green);
+  box-shadow:none;
+  margin-right:6px;
+}
+
+.content-grid {
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);
+  gap:15px;
+  margin-top:16px;
+}
+
+.panel { padding:19px;min-width:0; }
+
+.panel-heading { align-items:flex-start; }
+
+.panel-heading h3 {
+  font:700 15px Manrope;
+  margin:5px 0;
+}
+
+.panel-heading p { font-size:10px; }
+
+.live-pill {
+  font-size:9px;
+  color:#77ddb8;
+  background:#17372f;
+  padding:7px 9px;
+  border-radius:20px;
+  letter-spacing:.6px;
+  white-space:nowrap;
+}
+
+.live-pill i {
+  display:inline-block;
+  width:6px;
+  height:6px;
+  background:var(--green);
+  border-radius:50%;
+  margin-right:6px;
+}
+
+.chart-meta {
+  margin-top:23px;
+  align-items:flex-end;
+}
+
+.chart-meta strong { font:700 25px Manrope; }
+
+.chart-meta small {
+  font:500 12px "DM Sans";
+  color:var(--muted);
+}
+
+.chart-meta span {
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:3px;
+}
+
+.range-tabs {
+  display:flex;
+  gap:3px;
+  background:#0d1726;
+  padding:3px;
+  border-radius:8px;
+}
+
+.range {
+  border:0;
+  background:transparent;
+  color:#8395ad;
+  padding:6px 9px;
+  border-radius:6px;
+  font-size:10px;
+}
+
+.range.active {
+  background:#29466d;
+  color:#e4efff;
+}
+
+.chart-wrap {
+  height:220px;
+  margin:14px 0 7px;
+  position:relative;
+}
+
+.chart-footer {
+  border-top:1px solid var(--line);
+  padding-top:12px;
+  display:flex;
+  justify-content:space-between;
+  color:#8ea0b8;
+  font-size:10px;
+  gap:10px;
+}
+
+.legend-dot {
+  display:inline-block;
+  width:7px;
+  height:7px;
+  background:var(--blue);
+  border-radius:50%;
+  margin-right:6px;
+}
+
+.chart-footer b { color:#d8e5f6; }
+
+.light-visual {
+  height:112px;
+  border-radius:10px;
+  background:radial-gradient(circle at 50% 40%,#f7bd581a,transparent 58%),#0d1726;
+  margin:19px 0 13px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  color:#8ea0b8;
+  font-size:9px;
+  letter-spacing:1.2px;
+}
+
+.bulb {
+  font-size:37px;
+  color:#64758e;
+}
+
+.light-visual.on .bulb {
+  color:var(--amber);
+  text-shadow:0 0 24px #f7bd58a8;
+}
+
+.button-row {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.btn {
+  padding:10px;
+  border-radius:8px;
+  border:1px solid transparent;
+  font-size:11px;
+  font-weight:700;
+}
+
+.btn-primary { background:#347bd5;color:white; }
+.btn-secondary { background:#1a2a40;border-color:#30435c;color:#d1deef; }
+.btn-danger { background:#54252b;border-color:#74333a;color:#ffc3c3; }
+.btn-success { background:#164536;border-color:#24644d;color:#a4f2d1; }
+
+.divider {
+  height:1px;
+  background:var(--line);
+  margin:17px 0;
+}
+
+.setting-row b { font-size:11px; }
+
+.setting-row small {
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  margin-top:4px;
+}
+
+.mode-badge {
+  padding:6px 9px;
+  border-radius:6px;
+  font-size:10px;
+  font-weight:700;
+  background:#263952;
+  color:#cbdcf3;
+}
+
+.admin-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:15px;
+}
+
+.admin-control {
+  background:#0d1726;
+  border:1px solid var(--line);
+  padding:13px;
+  border-radius:9px;
+}
+
+.admin-control p {
+  color:var(--muted);
+  font-size:10px;
+  margin:5px 0 10px;
+}
+
+.admin-control strong { font-size:13px; }
+
+.admin-actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:10px;
+}
+
+.admin-actions button {
+  padding:8px 10px;
+  border:1px solid var(--line);
+  background:#1a2a40;
+  color:#dceaff;
+  border-radius:7px;
+  font-size:10px;
+  font-weight:700;
+}
+
+.admin-actions button:hover { border-color:var(--blue); }
+
+.form-input {
+  width:100%;
+  padding:11px;
+  border-radius:8px;
+  border:1px solid #334155;
+  background:#0b1220;
+  color:white;
+  margin:8px 0 10px;
+  outline:none;
+}
+
+.form-input:focus { border-color:var(--blue); }
+
+.form-label {
+  color:#cbd5e1;
+  font-size:11px;
+}
+
+.bottom-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+  margin-top:15px;
+}
+
+.connect-row {
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:13px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.connect-row:last-child {
+  border:0;
+  padding-bottom:0;
+}
+
+.connect-symbol {
+  width:31px;
+  height:31px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  font-size:17px;
+}
+
+.connect-row b {
+  display:block;
+  font-size:11px;
+}
+
+.connect-row small {
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  margin-top:4px;
+}
+
+.pending-tag {
+  margin-left:auto;
+  color:#c3a76b;
+  background:#3a311f;
+  padding:5px 7px;
+  border-radius:5px;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.6px;
+}
+
+.pending-tag.online {
+  color:#8be5c2;
+  background:#17372f;
+}
+
+.activity-list { margin-top:13px; }
+
+.empty-state {
+  color:#8294aa;
+  font-size:10px;
+  padding:18px 0;
+}
+
+.event {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid var(--line);
+  padding:9px 0;
+  font-size:10px;
+  color:#c6d4e6;
+}
+
+.event time {
+  color:#7f91a9;
+  white-space:nowrap;
+}
+
+.text-btn {
+  border:0;
+  background:none;
+  color:var(--blue);
+  font-size:10px;
+}
+
+pre {
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  background:#0b1220;
+  padding:12px;
+  border-radius:8px;
+  color:#cbd5e1;
+  font-size:11px;
+  min-height:45px;
+  max-height:260px;
+  overflow:auto;
+}
+
+#message {
+  margin-top:12px;
+  font-size:12px;
+  overflow-wrap:anywhere;
+}
+
+.success-text { color:var(--green); }
+.error-text { color:var(--red); }
+.warning-text { color:var(--amber); }
+
+.login-wrapper {
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:20px;
+}
+
+.login-card {
+  width:100%;
+  max-width:390px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:28px;
+}
+
+.login-card h1 {
+  font:800 23px Manrope;
+  margin:0 0 7px;
+}
+
+.login-card p {
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:23px;
+}
+
+.login-card button { width:100%;margin-top:5px; }
+
+footer {
+  display:flex;
+  justify-content:space-between;
+  color:#536780;
+  font-size:8px;
+  letter-spacing:1.2px;
+  margin-top:22px;
+  gap:8px;
+}
+
+footer span { letter-spacing:.6px; }
+
+@media(max-width:1050px) {
+  .sidebar { width:205px; }
+  .main { padding:25px 22px; }
+  .stat-grid { grid-template-columns:repeat(2,1fr); }
+}
+
+@media(max-width:760px) {
+  .sidebar { display:none; }
+  .main { padding:22px 15px; }
+  .content-grid,.bottom-grid { grid-template-columns:1fr; }
+  .welcome-row {
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .topbar h1 { font-size:22px; }
+  .stat-card { padding:14px; }
+  .stat-value strong { font-size:23px; }
+  .chart-wrap { height:190px; }
+  footer { flex-direction:column; }
+  .date-chip { display:none; }
+}
+
+@media(max-width:400px) {
+  .stat-grid { grid-template-columns:1fr 1fr; }
+  .admin-grid { grid-template-columns:1fr; }
+  .range { padding:6px; }
+}
+</style>
 </head>
 
 <body>
-<div class="container">
 
-  <header class="topbar">
-    <div>
-      <h1>Smart Home Automation</h1>
-      <div class="muted">ESP32 Remote Monitoring and Control</div>
+<!-- LOGIN -->
+<section id="loginSection" class="login-wrapper">
+  <div class="login-card">
+    <div class="brand" style="margin:0 0 25px">
+      <span class="brand-mark">⌂</span>
+      <span>smart<span class="brand-light">home</span>
+        <small>CONTROL CENTER</small>
+      </span>
     </div>
 
-    <div id="accountArea" class="hidden">
-      <span id="roleBadge" class="status"></span>
-      <button class="gray" id="logoutBtn">Logout</button>
+    <h1>Welcome back</h1>
+    <p>Sign in to monitor and control your smart home.</p>
+
+    <label class="form-label" for="email">Email address</label>
+    <input class="form-input" id="email" type="email" autocomplete="username" placeholder="Enter email">
+
+    <label class="form-label" for="password">Password</label>
+    <input class="form-input" id="password" type="password" autocomplete="current-password" placeholder="Enter password">
+
+    <button class="btn btn-primary" id="loginBtn">Sign in</button>
+    <div id="loginMessage"></div>
+  </div>
+</section>
+
+<!-- APPLICATION -->
+<div class="app-shell hidden" id="app">
+
+  <aside class="sidebar">
+
+    <a class="brand" href="#overview">
+      <span class="brand-mark">⌂</span>
+      <span>smart<span class="brand-light">home</span>
+        <small>CONTROL CENTER</small>
+      </span>
+    </a>
+
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav-item active" href="#overview"><span>▦</span> Overview</a>
+    <a class="nav-item" href="#analytics"><span>⌁</span> Sensor analytics</a>
+    <a class="nav-item" href="#controls"><span>◉</span> Device control</a>
+    <a class="nav-item" href="#activity"><span>◷</span> Activity log</a>
+
+    <div class="sidebar-bottom">
+      <div class="device-mini">
+        <span class="pulse" id="sidebarPulse"></span>
+        <div>
+          <b>ESP32</b>
+          <small id="sidebarDeviceStatus">Waiting for device</small>
+        </div>
+      </div>
+
+      <div class="profile">
+        <div class="avatar" id="avatar">U</div>
+        <div>
+          <b id="profileRole">User</b>
+          <small id="profileEmail">Signed in</small>
+        </div>
+      </div>
     </div>
-  </header>
 
-  <div id="message"></div>
+  </aside>
 
-  <!-- LOGIN -->
-  <section id="loginSection" class="card">
-    <h2>Sign in</h2>
-    <p class="muted">Sign in using your approved Firebase account.</p>
+  <main class="main">
 
-    <label for="email">Email</label>
-    <input id="email" type="email"
-           autocomplete="username"
-           placeholder="Enter email">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow" id="currentDate">SMART HOME SYSTEM</div>
+        <h1>Overview</h1>
+      </div>
 
-    <label for="password">Password</label>
-    <input id="password" type="password"
-           autocomplete="current-password"
-           placeholder="Enter password">
+      <div class="top-actions">
+        <span class="connection" id="connectionStatus">
+          <i></i> Waiting for device
+        </span>
+        <button class="icon-btn" id="logoutBtn">Logout ↗</button>
+      </div>
+    </header>
 
-    <button id="loginBtn">Login</button>
-  </section>
+    <section class="welcome-row" id="overview">
+      <div>
+        <h2>Your home, intelligently connected.</h2>
+        <p>Monitor sensors and manage your automation from one place.</p>
+      </div>
+      <div class="date-chip">ESP32 · Remote Monitoring</div>
+    </section>
 
-  <!-- DASHBOARD -->
-  <main id="dashboard" class="hidden">
+    <!-- METRICS -->
+    <section class="stat-grid">
 
-    <section class="card">
-      <h2>Live Device Overview</h2>
+      <article class="stat-card">
+        <div class="stat-top">
+          <span>ULTRASONIC DISTANCE</span>
+          <span class="stat-icon blue">⌁</span>
+        </div>
+        <div class="stat-value">
+          <strong id="distanceValue">--</strong>
+          <em>cm</em>
+        </div>
+        <div class="stat-foot" id="sensorFoot">Waiting for sensor data</div>
+      </article>
 
-      <div class="grid">
+      <article class="stat-card">
+        <div class="stat-top">
+          <span>LIGHT / RELAY</span>
+          <span class="stat-icon amber">☼</span>
+        </div>
+        <div class="stat-value">
+          <strong id="relayValue">--</strong>
+        </div>
+        <div class="stat-foot" id="relayFoot">Waiting for device data</div>
+      </article>
 
-        <div class="metric">
-          <div class="muted">Relay State</div>
-          <div class="value" id="relayState">--</div>
+      <article class="stat-card">
+        <div class="stat-top">
+          <span>OPERATING MODE</span>
+          <span class="stat-icon green">⌘</span>
+        </div>
+        <div class="stat-value">
+          <strong class="status-word" id="modeValue">--</strong>
+        </div>
+        <div class="stat-foot">Current automation mode</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-top">
+          <span>WI-FI SIGNAL</span>
+          <span class="stat-icon violet">⌁</span>
+        </div>
+        <div class="stat-value">
+          <strong id="rssiValue">--</strong>
+          <em>dBm</em>
+        </div>
+        <div class="stat-foot" id="ipValue">IP: --</div>
+      </article>
+
+    </section>
+
+    <!-- CHART + RELAY -->
+    <section class="content-grid">
+
+      <article class="panel" id="analytics">
+        <div class="panel-heading">
+          <div>
+            <div class="eyebrow">SENSOR MONITORING</div>
+            <h3>Distance over time</h3>
+            <p>Ultrasonic sensor · HC-SR04</p>
+          </div>
+          <span class="live-pill"><i></i> LIVE DATA</span>
         </div>
 
-        <div class="metric">
-          <div class="muted">Operating Mode</div>
-          <div class="value" id="mode">--</div>
+        <div class="chart-meta">
+          <div>
+            <strong id="chartCurrent">-- <small>cm</small></strong>
+            <span>Latest valid measurement</span>
+          </div>
+
+          <div class="range-tabs">
+            <button class="range active" data-range="1">1 min</button>
+            <button class="range" data-range="5">5 min</button>
+            <button class="range" data-range="60">1 hour</button>
+          </div>
         </div>
 
-        <div class="metric">
-          <div class="muted">Distance</div>
-          <div class="value" id="distance">--</div>
+        <div class="chart-wrap">
+          <canvas id="distanceChart"></canvas>
         </div>
 
-        <div class="metric">
-          <div class="muted">Sensor Status</div>
-          <div class="value" id="sensorValid">--</div>
+        <div class="chart-footer">
+          <span><i class="legend-dot"></i> Distance (cm)</span>
+          <span>Threshold: <b id="thresholdLabel">-- cm</b></span>
+        </div>
+      </article>
+
+      <article class="panel" id="controls">
+        <div class="panel-heading">
+          <div>
+            <div class="eyebrow">DEVICE CONTROL</div>
+            <h3>Lighting</h3>
+            <p>ESP32 relay control</p>
+          </div>
+          <span class="stat-icon amber">☼</span>
         </div>
 
-        <div class="metric">
-          <div class="muted">Wi-Fi RSSI</div>
-          <div class="value" id="rssi">--</div>
+        <div class="light-visual" id="lightVisual">
+          <div class="bulb">☼</div>
+          <span id="lightStatus">RELAY STATUS UNKNOWN</span>
         </div>
 
-        <div class="metric">
-          <div class="muted">Device IP</div>
-          <div class="value" id="ip">--</div>
+        <div class="button-row">
+          <button class="btn btn-primary" id="turnOn">Turn ON</button>
+          <button class="btn btn-secondary" id="turnOff">Turn OFF</button>
+        </div>
+
+        <p class="muted" id="relayControlInfo" style="color:var(--muted);font-size:10px;margin-top:12px">
+          Waiting for operating mode.
+        </p>
+
+        <div class="divider"></div>
+
+        <div class="setting-row">
+          <div>
+            <b>Operating mode</b>
+            <small>Current device automation mode</small>
+          </div>
+          <span class="mode-badge" id="modeBadge">--</span>
+        </div>
+
+      </article>
+
+    </section>
+
+    <!-- ADMIN SETTINGS -->
+    <section class="panel hidden" id="adminSection" style="margin-top:15px">
+
+      <div class="panel-heading">
+        <div>
+          <div class="eyebrow">ADMINISTRATION</div>
+          <h3>Device settings</h3>
+          <p>Administrator-only system configuration</p>
+        </div>
+        <span class="mode-badge">ADMIN</span>
+      </div>
+
+      <div class="admin-grid">
+
+        <div class="admin-control">
+          <div class="eyebrow">MANUAL PERMISSION</div>
+          <strong id="manualPermission">--</strong>
+          <p>Allow or disable manual relay control.</p>
+          <div class="admin-actions">
+            <button data-command="manual on">Allow manual</button>
+            <button data-command="manual off">Disable manual</button>
+          </div>
+        </div>
+
+        <div class="admin-control">
+          <div class="eyebrow">OPERATING MODE</div>
+          <strong id="adminMode">--</strong>
+          <p>Choose automatic or manual operation.</p>
+          <div class="admin-actions">
+            <button data-command="mode auto">AUTO mode</button>
+            <button data-command="mode manual">MANUAL mode</button>
+          </div>
+        </div>
+
+        <div class="admin-control">
+          <div class="eyebrow">MASTER LOCKOUT</div>
+          <strong id="masterLockout">--</strong>
+          <p>Emergency control lock for relay commands.</p>
+          <div class="admin-actions">
+            <button data-command="lock on">Enable lockout</button>
+            <button data-command="lock off">Disable lockout</button>
+          </div>
+        </div>
+
+        <div class="admin-control">
+          <div class="eyebrow">AUTOMATION THRESHOLD</div>
+          <strong id="thresholdValue">-- cm</strong>
+          <p>Current threshold reported by ESP32.</p>
+          <small style="color:var(--muted)">Read-only device value</small>
         </div>
 
       </div>
 
-      <p class="muted" id="lastUpdated">Last update: --</p>
     </section>
 
-    <!-- RELAY CONTROL -->
-    <section class="card">
-      <h2>Relay Control</h2>
+    <!-- OPERATOR MANAGEMENT -->
+    <section class="panel hidden" id="operatorSection" style="margin-top:15px">
 
-      <p class="muted" id="relayControlInfo">
-        Relay control availability depends on operating mode.
+      <div class="panel-heading">
+        <div>
+          <div class="eyebrow">ACCESS MANAGEMENT</div>
+          <h3>Operator management</h3>
+          <p>Approve or remove an existing Firebase user.</p>
+        </div>
+      </div>
+
+      <label class="form-label" for="operatorUid">Firebase Authentication UID</label>
+      <input class="form-input" id="operatorUid" placeholder="Enter operator UID">
+
+      <div class="admin-actions">
+        <button id="approveOperator" class="btn-success">Approve operator</button>
+        <button id="removeOperator" class="btn-danger">Remove operator</button>
+      </div>
+
+      <p style="color:var(--muted);font-size:10px">
+        This changes database access only. It does not create or delete Firebase Authentication accounts.
       </p>
 
-      <button class="green" id="relayOnBtn">Relay ON</button>
-      <button class="red" id="relayOffBtn">Relay OFF</button>
     </section>
 
-    <!-- ADMIN ONLY -->
-    <section id="adminSection" class="hidden">
+    <!-- CONNECTIVITY + ACTIVITY -->
+    <section class="bottom-grid">
 
-      <section class="card">
-        <h2>Admin Device Settings</h2>
-
-        <div class="grid">
-
-          <div class="metric">
-            <div class="muted">Sensor Permission</div>
-            <div class="value" id="sensorPermission">--</div>
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <div class="eyebrow">COMMUNICATION</div>
+            <h3>Connectivity</h3>
           </div>
-
-          <div class="metric">
-            <div class="muted">Manual Permission</div>
-            <div class="value" id="manualPermission">--</div>
-          </div>
-
-          <div class="metric">
-            <div class="muted">Master Lockout</div>
-            <div class="value" id="masterLockout">--</div>
-          </div>
-
-          <div class="metric">
-            <div class="muted">Threshold</div>
-            <div class="value" id="threshold">--</div>
-          </div>
-
         </div>
 
-        <h3>Permissions</h3>
+        <div class="connect-row">
+          <span class="connect-symbol blue">⌁</span>
+          <div>
+            <b>Wi-Fi</b>
+            <small id="wifiDetail">Waiting for device telemetry</small>
+          </div>
+          <span class="pending-tag" id="wifiStatus">WAITING</span>
+        </div>
 
-        <button class="green" data-command="sensor on">
-          Allow Sensor
-        </button>
+        <div class="connect-row">
+          <span class="connect-symbol green">◉</span>
+          <div>
+            <b>ESP32 Device</b>
+            <small id="deviceDetail">Device status unavailable</small>
+          </div>
+          <span class="pending-tag" id="deviceStatus">OFFLINE</span>
+        </div>
 
-        <button class="red" data-command="sensor off">
-          Disable Sensor
-        </button>
+        <div class="connect-row">
+          <span class="connect-symbol violet">⌁</span>
+          <div>
+            <b>Sensor</b>
+            <small id="sensorDetail">Waiting for sensor status</small>
+          </div>
+          <span class="pending-tag" id="sensorStatus">WAITING</span>
+        </div>
 
-        <button class="green" data-command="manual on">
-          Allow Manual
-        </button>
+      </article>
 
-        <button class="red" data-command="manual off">
-          Disable Manual
-        </button>
+      <article class="panel" id="activity">
+        <div class="panel-heading">
+          <div>
+            <div class="eyebrow">DEVICE RESPONSE</div>
+            <h3>Recent activity</h3>
+          </div>
+          <button class="text-btn" id="clearLog">Clear</button>
+        </div>
 
-        <h3>Operating Mode</h3>
-
-        <button data-command="mode auto">
-          Automatic Mode
-        </button>
-
-        <button data-command="mode manual">
-          Manual Mode
-        </button>
-
-        <h3>Master Lockout</h3>
-
-        <button class="orange" data-command="lock on">
-          Enable Lockout
-        </button>
-
-        <button class="green" data-command="lock off">
-          Disable Lockout
-        </button>
-
-      </section>
-
-      <!-- OPERATOR MANAGEMENT -->
-      <section class="card">
-        <h2>Operator Management</h2>
-
-        <p class="muted">
-          Approve or remove an existing Firebase Authentication user
-          using their Firebase UID.
-        </p>
-
-        <label for="operatorUid">Firebase User UID</label>
-
-        <input id="operatorUid" type="text"
-               placeholder="Enter the user's Firebase UID">
-
-        <button class="green" id="approveOperatorBtn">
-          Approve Operator
-        </button>
-
-        <button class="red" id="removeOperatorBtn">
-          Remove Operator
-        </button>
-
-        <p class="muted">
-          This changes database permissions. It does not create
-          or delete Firebase Authentication accounts.
-        </p>
-      </section>
-
-      <!-- ADMIN ACK -->
-      <section class="card">
-        <h2>Device Acknowledgement</h2>
-        <pre id="ackData">Waiting for device acknowledgement...</pre>
-      </section>
+        <div id="activityList" class="activity-list">
+          <div class="empty-state">Waiting for device events...</div>
+        </div>
+      </article>
 
     </section>
+
+    <!-- ACKNOWLEDGEMENT -->
+    <section class="panel" id="ackSection" style="margin-top:15px">
+      <div class="panel-heading">
+        <div>
+          <div class="eyebrow">COMMAND RESPONSE</div>
+          <h3>Device acknowledgement</h3>
+          <p>Latest response received from ESP32</p>
+        </div>
+      </div>
+      <pre id="ackData">Waiting for acknowledgement...</pre>
+    </section>
+
+    <footer>
+      <span>SMARTHOME CONTROL CENTER</span>
+      <span>ESP32 · FIREBASE REALTIME DATABASE</span>
+    </footer>
+
+    <div id="message"></div>
+
   </main>
 </div>
 
-<!-- FIREBASE SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
-
 <script>
+// =====================================================
+// FIREBASE CONFIGURATION
+// =====================================================
 
-  // ================================================
-  // FIREBASE CONFIGURATION
-  // ================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCBmFSv8HGBl8z4poDeVVXnUNagUGVlyYs",
+  authDomain: "smarthomeautomation-48c86.firebaseapp.com",
+  databaseURL: "https://smarthomeautomation-48c86-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "smarthomeautomation-48c86",
+  storageBucket: "smarthomeautomation-48c86.firebasestorage.app",
+  messagingSenderId: "30852921121",
+  appId: "1:30852921121:web:d531286477e1c1e759b060"
+};
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCBmFSv8HGBl8z4poDeVVXnUNagUGVlyYs",
-    authDomain: "smarthomeautomation-48c86.firebaseapp.com",
-    databaseURL: "https://smarthomeautomation-48c86-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "smarthomeautomation-48c86",
-    storageBucket: "smarthomeautomation-48c86.firebasestorage.app",
-    messagingSenderId: "30852921121",
-    appId: "1:30852921121:web:d531286477e1c1e759b060"
-  };
+firebase.initializeApp(firebaseConfig);
 
-  firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-  const auth = firebase.auth();
-  const db = firebase.database();
+// =====================================================
+// PROJECT IDENTIFIERS
+// =====================================================
 
-  // ================================================
-  // IDENTIFIERS
-  // ================================================
+const ADMIN_UID = "wO04AITuvhS80aLhWIiFQEK2NMu2";
+const DEVICE_UID = "YChbLUhMLGVlPl0XP22wS9ytjuY2";
+const DEVICE_PATH = "devices/" + DEVICE_UID;
 
-  const ADMIN_UID = "wO04AITuvhS80aLhWIiFQEK2NMu2";
-  const DEVICE_UID = "YChbLUhMLGVlPl0XP22wS9ytjuY2";
-  const DEVICE_PATH = "devices/" + DEVICE_UID;
+// =====================================================
+// APPLICATION STATE
+// =====================================================
 
-  let currentUser = null;
-  let currentRole = null;
+let currentUser = null;
+let currentRole = null;
+let latestMode = null;
+let latestTelemetry = null;
+let latestAdminTelemetry = null;
+let latestAck = null;
 
-  let telemetryListener = null;
-  let adminTelemetryListener = null;
-  let ackListener = null;
-  let accessListener = null;
+let telemetryListener = null;
+let adminTelemetryListener = null;
+let ackListener = null;
+let accessListener = null;
 
-  let latestMode = null;
+let chart = null;
+let selectedRange = 1;
+let readings = [];
+let lastDeviceUpdate = null;
 
-  const el = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-  // ================================================
-  // MESSAGES AND UI
-  // ================================================
+// =====================================================
+// GENERAL UI
+// =====================================================
 
-  function showMessage(message, type = "") {
-    el("message").textContent = message;
-    el("message").className = type;
+function showMessage(message, type = "") {
+  const box = $("message");
+  box.textContent = message;
+  box.className = type === "success"
+    ? "success-text"
+    : type === "danger"
+      ? "error-text"
+      : type === "warning"
+        ? "warning-text"
+        : "";
+}
+
+function showLoginMessage(message, type = "") {
+  const box = $("loginMessage");
+  box.textContent = message;
+  box.className = type === "danger"
+    ? "error-text"
+    : type === "success"
+      ? "success-text"
+      : "";
+}
+
+function formatTimestamp(timestamp) {
+  if (typeof timestamp !== "number") return "--";
+
+  const ms = timestamp < 1000000000000
+    ? timestamp * 1000
+    : timestamp;
+
+  return new Date(ms).toLocaleString();
+}
+
+function addActivity(message) {
+  const list = $("activityList");
+
+  const empty = list.querySelector(".empty-state");
+  if (empty) empty.remove();
+
+  const row = document.createElement("div");
+  row.className = "event";
+
+  const label = document.createElement("span");
+  label.textContent = message;
+
+  const time = document.createElement("time");
+  time.textContent = new Date().toLocaleTimeString();
+
+  row.append(label, time);
+  list.prepend(row);
+
+  while (list.children.length > 8) {
+    list.lastElementChild.remove();
+  }
+}
+
+function setText(id, value) {
+  $(id).textContent = value ?? "--";
+}
+
+// =====================================================
+// CHART INITIALIZATION
+// =====================================================
+
+function initializeChart() {
+  const canvas = $("distanceChart");
+
+  const gradient = canvas.getContext("2d")
+    .createLinearGradient(0, 0, 0, 220);
+
+  gradient.addColorStop(0, "rgba(91,156,255,.25)");
+  gradient.addColorStop(1, "rgba(91,156,255,0)");
+
+  chart = new Chart(canvas, {
+    type: "line",
+
+    data: {
+      labels: [],
+      datasets: [{
+        label: "Distance",
+        data: [],
+        borderColor: "#5b9cff",
+        backgroundColor: gradient,
+        fill: true,
+        tension: .35,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 2
+      }]
+    },
+
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+
+      plugins: {
+        legend: { display: false },
+
+        tooltip: {
+          backgroundColor: "#14243a",
+          titleColor: "#dceaff",
+          bodyColor: "#dceaff",
+          callbacks: {
+            label: context =>
+              ` ${context.parsed.y.toFixed(2)} cm`
+          }
+        }
+      },
+
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            color: "#71849e",
+            maxTicksLimit: 6,
+            maxRotation: 0,
+            font: { size: 9 }
+          },
+          border: { display: false }
+        },
+
+        y: {
+          grid: { color: "rgba(143,161,185,.10)" },
+          ticks: {
+            color: "#71849e",
+            font: { size: 9 },
+            callback: value => `${value} cm`
+          },
+          border: { display: false },
+          suggestedMin: 0
+        }
+      }
+    }
+  });
+}
+
+function updateChart() {
+  if (!chart) return;
+
+  const now = Date.now();
+  const windowMs = selectedRange * 60 * 1000;
+
+  const filtered = readings.filter(
+    reading => now - reading.time <= windowMs
+  );
+
+  chart.data.labels = filtered.map(
+    reading => new Date(reading.time).toLocaleTimeString()
+  );
+
+  chart.data.datasets[0].data = filtered.map(
+    reading => reading.distance
+  );
+
+  chart.update("none");
+}
+
+function addReading(distance) {
+  readings.push({
+    time: Date.now(),
+    distance
+  });
+
+  // Keep up to one hour of in-session readings.
+  const cutoff = Date.now() - 60 * 60 * 1000;
+
+  readings = readings.filter(
+    reading => reading.time >= cutoff
+  );
+
+  updateChart();
+}
+
+// =====================================================
+// DATE AND RANGE CONTROLS
+// =====================================================
+
+$("currentDate").textContent =
+  new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  }).toUpperCase();
+
+document.querySelectorAll(".range").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".range").forEach(item => {
+      item.classList.remove("active");
+    });
+
+    button.classList.add("active");
+    selectedRange = Number(button.dataset.range);
+    updateChart();
+  });
+});
+
+$("clearLog").addEventListener("click", () => {
+  $("activityList").innerHTML =
+    '<div class="empty-state">No recent events.</div>';
+});
+
+// =====================================================
+// CONNECTION DISPLAY
+// =====================================================
+
+function updateConnectionStatus(online) {
+  const status = $("connectionStatus");
+
+  status.classList.toggle("online", online);
+
+  status.innerHTML = online
+    ? "<i></i> Device connected"
+    : "<i></i> Waiting for device";
+
+  $("sidebarPulse").classList.toggle("online", online);
+
+  $("sidebarDeviceStatus").textContent =
+    online ? "Connected" : "Waiting for device";
+
+  $("deviceStatus").textContent =
+    online ? "ONLINE" : "OFFLINE";
+
+  $("deviceStatus").classList.toggle("online", online);
+
+  $("deviceDetail").textContent =
+    online ? "Telemetry received from ESP32" : "No recent telemetry";
+}
+
+// =====================================================
+// TELEMETRY DISPLAY
+// =====================================================
+
+function updateTelemetry(data) {
+  latestTelemetry = data;
+
+  if (!data) {
+    updateConnectionStatus(false);
+    return;
   }
 
-  function showLogin() {
-    el("loginSection").classList.remove("hidden");
-    el("dashboard").classList.add("hidden");
-    el("accountArea").classList.add("hidden");
+  lastDeviceUpdate = Date.now();
+  updateConnectionStatus(true);
+
+  // Relay
+  const relay = data.relay_state;
+
+  setText("relayValue", relay ?? "--");
+  setText("relayFoot", "Reported by ESP32");
+
+  const relayIsOn =
+    relay === true ||
+    String(relay).toUpperCase() === "ON";
+
+  $("lightVisual").classList.toggle("on", relayIsOn);
+
+  $("lightStatus").textContent =
+    relay === undefined
+      ? "RELAY STATUS UNKNOWN"
+      : relayIsOn ? "LIGHT IS ON" : "LIGHT IS OFF";
+
+  // Operating mode
+  latestMode = data.mode ?? null;
+
+  setText("modeValue", latestMode);
+  setText("modeBadge", latestMode);
+  setText("adminMode", latestMode);
+
+  updateRelayControls();
+
+  // Distance
+  if (
+    data.sensor_valid === true &&
+    typeof data.distance_cm === "number" &&
+    Number.isFinite(data.distance_cm)
+  ) {
+    const distance = data.distance_cm;
+
+    setText("distanceValue", distance.toFixed(2));
+    $("chartCurrent").innerHTML =
+      `${distance.toFixed(2)} <small>cm</small>`;
+
+    setText("sensorFoot", "Valid sensor measurement");
+    setText("sensorDetail", "Ultrasonic sensor is valid");
+    setText("sensorStatus", "VALID");
+
+    $("sensorStatus").classList.add("online");
+
+    addReading(distance);
+  } else {
+    setText("distanceValue", "--");
+    $("chartCurrent").innerHTML = `-- <small>cm</small>`;
+
+    setText("sensorFoot", "Sensor reading unavailable");
+    setText("sensorDetail", "Sensor invalid or disconnected");
+    setText("sensorStatus", "INVALID");
+
+    $("sensorStatus").classList.remove("online");
   }
 
-  function showDashboard(role) {
-    el("loginSection").classList.add("hidden");
-    el("dashboard").classList.remove("hidden");
-    el("accountArea").classList.remove("hidden");
+  // Wi-Fi
+  setText(
+    "rssiValue",
+    typeof data.rssi === "number" ? data.rssi : "--"
+  );
 
-    el("roleBadge").textContent =
-      role === "admin" ? "ADMIN" : "OPERATOR";
+  setText("ipValue", "IP: " + (data.ip ?? "--"));
 
-    el("adminSection").classList.toggle(
-      "hidden",
-      role !== "admin"
+  setText(
+    "wifiDetail",
+    data.ip
+      ? `${data.ip} · ${data.rssi ?? "--"} dBm`
+      : "Wi-Fi details unavailable"
+  );
+
+  setText("wifiStatus", "CONNECTED");
+  $("wifiStatus").classList.add("online");
+
+  updateThresholdDisplay();
+}
+
+// =====================================================
+// ADMIN TELEMETRY
+// =====================================================
+
+function updateAdminTelemetry(data) {
+  latestAdminTelemetry = data || {};
+
+  setText(
+    "manualPermission",
+    data?.manual_permission === true ? "ENABLED" :
+    data?.manual_permission === false ? "DISABLED" : "--"
+  );
+
+  setText(
+    "masterLockout",
+    data?.master_lockout === true ? "ACTIVE" :
+    data?.master_lockout === false ? "INACTIVE" : "--"
+  );
+
+  updateThresholdDisplay();
+}
+
+function updateThresholdDisplay() {
+  const threshold = latestAdminTelemetry?.threshold_cm;
+
+  const value = typeof threshold === "number"
+    ? threshold
+    : null;
+
+  setText(
+    "thresholdValue",
+    value === null ? "-- cm" : `${value} cm`
+  );
+
+  setText(
+    "thresholdLabel",
+    value === null ? "-- cm" : `${value} cm`
+  );
+}
+
+// =====================================================
+// ROLE-BASED RELAY CONTROLS
+// =====================================================
+
+function updateRelayControls() {
+  const isOperator = currentRole === "operator";
+
+  const operatorAllowed =
+    isOperator && latestMode === "MANUAL";
+
+  const disabled = isOperator && !operatorAllowed;
+
+  $("turnOn").disabled = disabled;
+  $("turnOff").disabled = disabled;
+
+  if (isOperator) {
+    $("relayControlInfo").textContent =
+      operatorAllowed
+        ? "Manual mode active. Operator relay control is available."
+        : "Operators can control the relay only in MANUAL mode.";
+  } else {
+    $("relayControlInfo").textContent =
+      "Administrator controls are available. ESP32 safety logic still applies.";
+  }
+}
+
+// =====================================================
+// ACKNOWLEDGEMENT
+// =====================================================
+
+function updateAcknowledgement(data) {
+  latestAck = data;
+
+  $("ackData").textContent = data
+    ? JSON.stringify(data, null, 2)
+    : "No acknowledgement received.";
+
+  if (data?.status) {
+    addActivity(
+      `Device acknowledgement: ${data.status}` +
+      (data.message ? ` — ${data.message}` : "")
     );
   }
+}
 
-  function formatTimestamp(timestamp) {
-    if (typeof timestamp !== "number") return "--";
+// =====================================================
+// LISTENER CLEANUP
+// =====================================================
 
-    const milliseconds =
-      timestamp < 1000000000000
-        ? timestamp * 1000
-        : timestamp;
-
-    return new Date(milliseconds).toLocaleString();
+function clearListeners() {
+  if (telemetryListener) {
+    db.ref(DEVICE_PATH + "/telemetry")
+      .off("value", telemetryListener);
+    telemetryListener = null;
   }
 
-  // ================================================
-  // RELAY BUTTON PERMISSIONS
-  // ================================================
+  if (adminTelemetryListener) {
+    db.ref(DEVICE_PATH + "/adminTelemetry")
+      .off("value", adminTelemetryListener);
+    adminTelemetryListener = null;
+  }
 
-  function updateRelayControls(mode) {
-    latestMode = mode;
+  if (ackListener) {
+    db.ref(DEVICE_PATH + "/ack")
+      .off("value", ackListener);
+    ackListener = null;
+  }
 
-    const operatorInManualMode =
-      currentRole === "operator" &&
-      mode === "MANUAL";
+  if (accessListener && currentUser) {
+    db.ref("access/" + currentUser.uid + "/role")
+      .off("value", accessListener);
+    accessListener = null;
+  }
+}
 
-    const shouldDisableOperator =
-      currentRole === "operator" &&
-      !operatorInManualMode;
+// =====================================================
+// DATABASE LISTENERS
+// =====================================================
 
-    el("relayOnBtn").disabled = shouldDisableOperator;
-    el("relayOffBtn").disabled = shouldDisableOperator;
+function attachListeners() {
+  clearListeners();
 
-    if (currentRole === "operator") {
-      el("relayControlInfo").textContent =
-        operatorInManualMode
-          ? "Manual mode active. You can control the relay."
-          : "Relay control is disabled for operators in AUTO mode or while mode is unavailable.";
+  const telemetryRef = db.ref(DEVICE_PATH + "/telemetry");
+
+  telemetryListener = telemetryRef.on("value", snapshot => {
+    updateTelemetry(snapshot.val());
+  }, error => {
+    showMessage(
+      "Telemetry error: " + error.message,
+      "danger"
+    );
+  });
+
+  if (currentRole === "admin") {
+    const adminRef = db.ref(DEVICE_PATH + "/adminTelemetry");
+
+    adminTelemetryListener = adminRef.on("value", snapshot => {
+      updateAdminTelemetry(snapshot.val());
+    }, error => {
+      showMessage(
+        "Admin telemetry error: " + error.message,
+        "danger"
+      );
+    });
+
+    const ackRef = db.ref(DEVICE_PATH + "/ack");
+
+    ackListener = ackRef.on("value", snapshot => {
+      updateAcknowledgement(snapshot.val());
+    }, error => {
+      showMessage(
+        "Acknowledgement error: " + error.message,
+        "danger"
+      );
+    });
+  }
+
+  if (currentRole === "operator") {
+    const accessRef =
+      db.ref("access/" + currentUser.uid + "/role");
+
+    accessListener = accessRef.on("value", async snapshot => {
+      if (
+        auth.currentUser &&
+        auth.currentUser.uid === currentUser.uid &&
+        snapshot.val() !== "operator"
+      ) {
+        showMessage("Operator access has been revoked.", "danger");
+        await auth.signOut();
+      }
+    });
+  }
+}
+
+// =====================================================
+// COMMAND SENDING
+// =====================================================
+
+async function issueCommand(command) {
+  if (!currentUser || !currentRole) {
+    showMessage("Please sign in first.", "danger");
+    return;
+  }
+
+  const adminCommands = [
+    "manual on",
+    "manual off",
+    "mode auto",
+    "mode manual",
+    "lock on",
+    "lock off",
+    "relay on",
+    "relay off"
+  ];
+
+  const operatorCommands = [
+    "relay on",
+    "relay off"
+  ];
+
+  if (
+    currentRole === "admin" &&
+    !adminCommands.includes(command)
+  ) {
+    showMessage("Invalid administrator command.", "danger");
+    return;
+  }
+
+  if (
+    currentRole === "operator" &&
+    !operatorCommands.includes(command)
+  ) {
+    showMessage("Operators can only control the relay.", "danger");
+    return;
+  }
+
+  if (
+    currentRole === "operator" &&
+    latestMode !== "MANUAL"
+  ) {
+    showMessage(
+      "Operators can control the relay only in MANUAL mode.",
+      "warning"
+    );
+    return;
+  }
+
+  const commandData = {
+    command: command,
+    command_id:
+      Date.now().toString() + "_" +
+      Math.random().toString(36).slice(2, 8),
+    created_at: Math.floor(Date.now() / 1000),
+
+    // REQUIRED BY FIREBASE SECURITY RULES
+    sender_uid: currentUser.uid
+  };
+
+  try {
+    await db.ref(DEVICE_PATH + "/commands").set(commandData);
+
+    showMessage(
+      `Command queued: ${command}. Waiting for ESP32 acknowledgement.`,
+      "success"
+    );
+
+    addActivity(`Command queued: ${command}`);
+
+  } catch (error) {
+    console.error("Command write error:", error);
+
+    showMessage(
+      "Command failed: " + error.message,
+      "danger"
+    );
+  }
+}
+
+// =====================================================
+// RELAY BUTTONS
+// =====================================================
+
+$("turnOn").addEventListener("click", () => {
+  issueCommand("relay on");
+});
+
+$("turnOff").addEventListener("click", () => {
+  issueCommand("relay off");
+});
+
+// =====================================================
+// ADMIN COMMAND BUTTONS
+// =====================================================
+
+document.querySelectorAll("[data-command]").forEach(button => {
+  button.addEventListener("click", () => {
+    if (currentRole !== "admin") {
+      showMessage(
+        "Administrator permission required.",
+        "danger"
+      );
+      return;
+    }
+
+    issueCommand(button.dataset.command);
+  });
+});
+
+// =====================================================
+// OPERATOR MANAGEMENT
+// =====================================================
+
+$("approveOperator").addEventListener("click", async () => {
+  if (currentRole !== "admin") return;
+
+  const uid = $("operatorUid").value.trim();
+
+  if (!uid) {
+    showMessage("Enter a Firebase user UID.", "warning");
+    return;
+  }
+
+  if (uid === ADMIN_UID || uid === DEVICE_UID) {
+    showMessage("This UID cannot be approved.", "danger");
+    return;
+  }
+
+  try {
+    await db.ref("access/" + uid).set({
+      role: "operator"
+    });
+
+    showMessage("Operator approved successfully.", "success");
+    addActivity("Operator approved");
+
+    $("operatorUid").value = "";
+
+  } catch (error) {
+    showMessage(
+      "Operator approval failed: " + error.message,
+      "danger"
+    );
+  }
+});
+
+$("removeOperator").addEventListener("click", async () => {
+  if (currentRole !== "admin") return;
+
+  const uid = $("operatorUid").value.trim();
+
+  if (!uid) {
+    showMessage("Enter an operator UID.", "warning");
+    return;
+  }
+
+  if (uid === ADMIN_UID || uid === DEVICE_UID) {
+    showMessage("This UID cannot be removed.", "danger");
+    return;
+  }
+
+  if (!confirm("Remove operator access for this UID?")) {
+    return;
+  }
+
+  try {
+    await db.ref("access/" + uid).remove();
+
+    showMessage("Operator access removed.", "success");
+    addActivity("Operator access removed");
+
+    $("operatorUid").value = "";
+
+  } catch (error) {
+    showMessage(
+      "Operator removal failed: " + error.message,
+      "danger"
+    );
+  }
+});
+
+// =====================================================
+// LOGIN
+// =====================================================
+
+$("loginBtn").addEventListener("click", async () => {
+  const email = $("email").value.trim();
+  const password = $("password").value;
+
+  if (!email || !password) {
+    showLoginMessage("Enter email and password.", "danger");
+    return;
+  }
+
+  $("loginBtn").disabled = true;
+  showLoginMessage("Signing in...");
+
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+  } catch (error) {
+    showLoginMessage("Login failed: " + error.message, "danger");
+  } finally {
+    $("loginBtn").disabled = false;
+  }
+});
+
+$("password").addEventListener("keydown", event => {
+  if (event.key === "Enter") {
+    $("loginBtn").click();
+  }
+});
+
+$("logoutBtn").addEventListener("click", async () => {
+  await auth.signOut();
+});
+
+// =====================================================
+// AUTHENTICATION AND ROLE CHECK
+// =====================================================
+
+auth.onAuthStateChanged(async user => {
+  clearListeners();
+
+  currentUser = user;
+  currentRole = null;
+
+  if (!user) {
+    $("app").classList.add("hidden");
+    $("loginSection").classList.remove("hidden");
+    showLoginMessage("Please sign in.");
+    return;
+  }
+
+  showMessage("Checking account permissions...");
+
+  try {
+    if (user.uid === ADMIN_UID) {
+      currentRole = "admin";
     } else {
-      el("relayControlInfo").textContent =
-        "Administrator relay controls are available. Firmware safety restrictions still apply.";
-    }
-  }
+      const roleSnapshot = await db
+        .ref("access/" + user.uid + "/role")
+        .once("value");
 
-  // ================================================
-  // LISTENER CLEANUP
-  // ================================================
+      if (auth.currentUser?.uid !== user.uid) return;
 
-  function clearListeners() {
-
-    if (telemetryListener) {
-      db.ref(DEVICE_PATH + "/telemetry")
-        .off("value", telemetryListener);
-
-      telemetryListener = null;
-    }
-
-    if (adminTelemetryListener) {
-      db.ref(DEVICE_PATH + "/adminTelemetry")
-        .off("value", adminTelemetryListener);
-
-      adminTelemetryListener = null;
-    }
-
-    if (ackListener) {
-      db.ref(DEVICE_PATH + "/ack")
-        .off("value", ackListener);
-
-      ackListener = null;
-    }
-
-    if (accessListener && currentUser) {
-      db.ref("access/" + currentUser.uid + "/role")
-        .off("value", accessListener);
-
-      accessListener = null;
-    }
-  }
-
-  function clearDashboard() {
-    clearListeners();
-
-    currentRole = null;
-    currentUser = null;
-    latestMode = null;
-
-    el("adminSection").classList.add("hidden");
-
-    updateRelayControls(null);
-
-    showLogin();
-  }
-
-  // ================================================
-  // LOGIN
-  // ================================================
-
-  el("loginBtn").addEventListener("click", async () => {
-
-    const email = el("email").value.trim();
-    const password = el("password").value;
-
-    if (!email || !password) {
-      showMessage("Enter your email and password.", "warning");
-      return;
-    }
-
-    el("loginBtn").disabled = true;
-    showMessage("Signing in...");
-
-    try {
-      await auth.signInWithEmailAndPassword(email, password);
-    } catch (error) {
-      showMessage("Login failed: " + error.message, "danger");
-    } finally {
-      el("loginBtn").disabled = false;
-    }
-  });
-
-  el("password").addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      el("loginBtn").click();
-    }
-  });
-
-  el("logoutBtn").addEventListener("click", async () => {
-    await auth.signOut();
-  });
-
-  // ================================================
-  // AUTHORIZATION
-  // ================================================
-
-  auth.onAuthStateChanged(async (user) => {
-
-    clearListeners();
-
-    if (!user) {
-      clearDashboard();
-      showMessage("Please sign in.");
-      return;
-    }
-
-    currentUser = user;
-    currentRole = null;
-
-    showMessage("Checking account permissions...");
-
-    try {
-
-      if (user.uid === ADMIN_UID) {
-
-        currentRole = "admin";
-
-      } else {
-
-        const roleSnapshot = await db
-          .ref("access/" + user.uid + "/role")
-          .once("value");
-
-        if (auth.currentUser?.uid !== user.uid) return;
-
-        if (roleSnapshot.val() !== "operator") {
-          await auth.signOut();
-
-          showMessage(
-            "Access denied. Your account is not approved.",
-            "danger"
-          );
-
-          return;
-        }
-
-        currentRole = "operator";
-      }
-
-      showDashboard(currentRole);
-
-      attachListeners();
-
-      showMessage(
-        currentRole === "admin"
-          ? "Signed in as administrator."
-          : "Signed in as operator.",
-        "success"
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-      await auth.signOut();
-
-      showMessage(
-        "Could not verify account permissions.",
-        "danger"
-      );
-    }
-  });
-
-  // ================================================
-  // DATABASE LISTENERS
-  // ================================================
-
-  function attachListeners() {
-
-    clearListeners();
-
-    // Shared telemetry
-    const telemetryRef = db.ref(DEVICE_PATH + "/telemetry");
-
-    telemetryListener = telemetryRef.on("value", (snapshot) => {
-
-      const t = snapshot.val();
-
-      if (!t) {
-        showMessage("Waiting for device telemetry...");
-        updateRelayControls(null);
+      if (roleSnapshot.val() !== "operator") {
+        await auth.signOut();
+        showLoginMessage(
+          "Access denied. Your account is not approved.",
+          "danger"
+        );
         return;
       }
 
-      el("relayState").textContent =
-        t.relay_state ?? "--";
+      currentRole = "operator";
+    }
 
-      el("mode").textContent =
-        t.mode ?? "--";
+    $("loginSection").classList.add("hidden");
+    $("app").classList.remove("hidden");
 
-      el("distance").textContent =
-        t.sensor_valid === true &&
-        typeof t.distance_cm === "number"
-          ? t.distance_cm.toFixed(2) + " cm"
-          : "Unavailable";
+    $("adminSection").classList.toggle(
+      "hidden",
+      currentRole !== "admin"
+    );
 
-      el("sensorValid").textContent =
-        t.sensor_valid === true ? "VALID" :
-        t.sensor_valid === false ? "INVALID" : "--";
+    $("operatorSection").classList.toggle(
+      "hidden",
+      currentRole !== "admin"
+    );
 
-      el("rssi").textContent =
-        typeof t.rssi === "number"
-          ? t.rssi + " dBm"
-          : "--";
+    $("avatar").textContent =
+      (user.email || "U").charAt(0).toUpperCase();
 
-      el("ip").textContent =
-        t.ip ?? "--";
+    setText(
+      "profileRole",
+      currentRole === "admin" ? "Administrator" : "Operator"
+    );
 
-      el("lastUpdated").textContent =
-        "Last update: " + formatTimestamp(t.updated_at);
+    setText("profileEmail", user.email || "Signed in");
 
-      updateRelayControls(t.mode);
+    attachListeners();
 
-    }, (error) => {
-      showMessage(
-        "Telemetry access error: " + error.message,
-        "danger"
-      );
-    });
-
-    // Admin-only telemetry
     if (currentRole === "admin") {
-
-      const adminRef =
-        db.ref(DEVICE_PATH + "/adminTelemetry");
-
-      adminTelemetryListener = adminRef.on("value", (snapshot) => {
-
-        const t = snapshot.val() || {};
-
-        el("sensorPermission").textContent =
-          t.sensor_permission ?? "--";
-
-        el("manualPermission").textContent =
-          t.manual_permission ?? "--";
-
-        el("masterLockout").textContent =
-          t.master_lockout ?? "--";
-
-        el("threshold").textContent =
-          typeof t.threshold_cm === "number"
-            ? t.threshold_cm + " cm"
-            : "--";
-
-      }, (error) => {
-
-        showMessage(
-          "Admin telemetry error: " + error.message,
-          "danger"
-        );
-      });
-
-      // Admin-only acknowledgement
-      const ackRef = db.ref(DEVICE_PATH + "/ack");
-
-      ackListener = ackRef.on("value", (snapshot) => {
-
-        el("ackData").textContent =
-          snapshot.exists()
-            ? JSON.stringify(snapshot.val(), null, 2)
-            : "No acknowledgement received yet.";
-
-      }, (error) => {
-
-        showMessage(
-          "Acknowledgement access error: " + error.message,
-          "danger"
-        );
-      });
+      initializeChart();
+    } else {
+      initializeChart();
     }
 
-    // Detect operator permission removal
-    if (currentRole === "operator") {
+    showMessage(
+      currentRole === "admin"
+        ? "Signed in as administrator."
+        : "Signed in as operator.",
+      "success"
+    );
 
-      const accessRef =
-        db.ref("access/" + currentUser.uid + "/role");
+  } catch (error) {
+    console.error(error);
 
-      accessListener = accessRef.on("value", async (snapshot) => {
+    await auth.signOut();
 
-        if (
-          auth.currentUser &&
-          auth.currentUser.uid === currentUser?.uid &&
-          snapshot.val() !== "operator"
-        ) {
-          showMessage(
-            "Your operator access has been revoked.",
-            "danger"
-          );
-
-          await auth.signOut();
-        }
-
-      }, async (error) => {
-
-        console.error("Permission listener error:", error);
-
-        if (
-          auth.currentUser &&
-          auth.currentUser.uid === currentUser?.uid
-        ) {
-          await auth.signOut();
-        }
-      });
-    }
+    showLoginMessage(
+      "Could not verify account permissions: " + error.message,
+      "danger"
+    );
   }
+});
 
-  // ================================================
-  // COMMAND SENDING
-  // ================================================
+// =====================================================
+// DEVICE CONNECTION WATCHDOG
+// =====================================================
 
-  async function issueCommand(command) {
+// The dashboard marks the device offline if telemetry stops
+// arriving for more than 30 seconds.
 
-    if (!currentUser || !currentRole) {
-      showMessage("Please sign in first.", "danger");
-      return;
-    }
+setInterval(() => {
+  if (!currentUser || !lastDeviceUpdate) return;
 
-    const operatorAllowed = [
-      "relay on",
-      "relay off"
-    ];
+  const online = Date.now() - lastDeviceUpdate < 30000;
 
-    if (
-      currentRole === "operator" &&
-      !operatorAllowed.includes(command)
-    ) {
-      showMessage(
-        "Operators can only control the relay.",
-        "danger"
-      );
-
-      return;
-    }
-
-    if (
-      currentRole === "operator" &&
-      latestMode !== "MANUAL"
-    ) {
-      showMessage(
-        "Relay control is available to operators only in MANUAL mode.",
-        "warning"
-      );
-
-      return;
-    }
-
-    const commandData = {
-      command: command,
-
-      command_id:
-        Date.now().toString() + "_" +
-        Math.random().toString(36).slice(2, 8),
-
-      created_at: Math.floor(Date.now() / 1000)
-    };
-
-    try {
-
-      await db
-        .ref(DEVICE_PATH + "/commands")
-        .set(commandData);
-
-      showMessage(
-        "Command sent: " + command,
-        "success"
-      );
-
-    } catch (error) {
-
-      showMessage(
-        "Command failed: " + error.message,
-        "danger"
-      );
-    }
-  }
-
-  el("relayOnBtn").addEventListener("click", () => {
-    issueCommand("relay on");
-  });
-
-  el("relayOffBtn").addEventListener("click", () => {
-    issueCommand("relay off");
-  });
-
-  document.querySelectorAll("[data-command]").forEach((button) => {
-
-    button.addEventListener("click", () => {
-
-      if (currentRole !== "admin") {
-        showMessage(
-          "Administrator permission required.",
-          "danger"
-        );
-
-        return;
-      }
-
-      issueCommand(button.dataset.command);
-    });
-  });
-
-  // ================================================
-  // ADMIN: APPROVE OPERATOR
-  // ================================================
-
-  el("approveOperatorBtn").addEventListener("click", async () => {
-
-    if (currentRole !== "admin") return;
-
-    const uid = el("operatorUid").value.trim();
-
-    if (!uid) {
-      showMessage("Enter a Firebase user UID.", "warning");
-      return;
-    }
-
-    if (uid === ADMIN_UID || uid === DEVICE_UID) {
-      showMessage(
-        "This UID cannot be approved as an operator.",
-        "danger"
-      );
-
-      return;
-    }
-
-    try {
-
-      await db.ref("access/" + uid).set({
-        role: "operator"
-      });
-
-      showMessage(
-        "Operator approved successfully.",
-        "success"
-      );
-
-      el("operatorUid").value = "";
-
-    } catch (error) {
-
-      showMessage(
-        "Approval failed: " + error.message,
-        "danger"
-      );
-    }
-  });
-
-  // ================================================
-  // ADMIN: REMOVE OPERATOR
-  // ================================================
-
-  el("removeOperatorBtn").addEventListener("click", async () => {
-
-    if (currentRole !== "admin") return;
-
-    const uid = el("operatorUid").value.trim();
-
-    if (!uid) {
-      showMessage(
-        "Enter the operator UID to remove.",
-        "warning"
-      );
-
-      return;
-    }
-
-    if (uid === ADMIN_UID || uid === DEVICE_UID) {
-      showMessage(
-        "This UID cannot be removed here.",
-        "danger"
-      );
-
-      return;
-    }
-
-    if (!confirm("Remove operator access for this UID?")) {
-      return;
-    }
-
-    try {
-
-      await db.ref("access/" + uid).remove();
-
-      showMessage(
-        "Operator access removed.",
-        "success"
-      );
-
-      el("operatorUid").value = "";
-
-    } catch (error) {
-
-      showMessage(
-        "Removal failed: " + error.message,
-        "danger"
-      );
-    }
-  });
+  updateConnectionStatus(online);
+}, 5000);
 
 </script>
 </body>
