@@ -45,13 +45,9 @@ body {
 button,input { font:inherit; }
 button { cursor:pointer; }
 button:disabled { opacity:.4; cursor:not-allowed; }
-
 .hidden { display:none!important; }
 
-.app-shell {
-  min-height:100vh;
-  display:flex;
-}
+.app-shell { min-height:100vh; display:flex; }
 
 .sidebar {
   width:245px;
@@ -136,10 +132,7 @@ button:disabled { opacity:.4; cursor:not-allowed; }
   margin-bottom:19px;
 }
 
-.device-mini b,.profile b {
-  display:block;
-  font-size:12px;
-}
+.device-mini b,.profile b { display:block;font-size:12px; }
 
 .device-mini small,.profile small {
   display:block;
@@ -314,10 +307,7 @@ button:disabled { opacity:.4; cursor:not-allowed; }
 
 .status-word { font-size:21px!important; }
 
-.stat-foot {
-  color:#8193aa;
-  font-size:10px;
-}
+.stat-foot { color:#8193aa;font-size:10px; }
 
 .live-dot {
   background:var(--green);
@@ -403,10 +393,114 @@ button:disabled { opacity:.4; cursor:not-allowed; }
   color:#e4efff;
 }
 
+.chart-visual-grid {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 190px;
+  gap:15px;
+  align-items:center;
+  margin-top:12px;
+}
+
 .chart-wrap {
   height:220px;
-  margin:14px 0 7px;
+  min-width:0;
   position:relative;
+}
+
+.radar-box {
+  background:#0d1726;
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:12px 9px 10px;
+  min-width:0;
+}
+
+.radar-heading {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:5px;
+  margin-bottom:5px;
+}
+
+.radar-heading b {
+  font-size:9px;
+  letter-spacing:1px;
+  color:#aebed2;
+}
+
+.radar-heading span {
+  color:var(--green);
+  font-size:8px;
+}
+
+.radar-svg {
+  display:block;
+  width:100%;
+  height:auto;
+  overflow:visible;
+}
+
+.radar-arc {
+  fill:none;
+  stroke:#29415f;
+  stroke-width:1.5;
+}
+
+.radar-axis {
+  stroke:#29415f;
+  stroke-width:1;
+}
+
+.radar-sweep {
+  stroke:#39d6a0;
+  stroke-width:1.5;
+  opacity:.7;
+  transform-origin:120px 120px;
+  animation:radarSweep 4s linear infinite;
+}
+
+@keyframes radarSweep {
+  from { transform:rotate(-90deg); }
+  to { transform:rotate(90deg); }
+}
+
+.radar-target {
+  fill:var(--amber);
+  stroke:#fff0c2;
+  stroke-width:2;
+  filter:drop-shadow(0 0 5px #f7bd58);
+  opacity:0;
+}
+
+.radar-center {
+  fill:var(--green);
+}
+
+.radar-reading {
+  text-align:center;
+  font:700 17px Manrope;
+  margin-top:-2px;
+}
+
+.radar-reading small {
+  font:500 9px "DM Sans";
+  color:var(--muted);
+}
+
+.radar-scale {
+  display:flex;
+  justify-content:space-between;
+  color:#71849e;
+  font-size:8px;
+  margin-top:4px;
+}
+
+.radar-state {
+  text-align:center;
+  color:var(--muted);
+  font-size:8px;
+  margin-top:7px;
 }
 
 .chart-footer {
@@ -417,6 +511,7 @@ button:disabled { opacity:.4; cursor:not-allowed; }
   color:#8ea0b8;
   font-size:10px;
   gap:10px;
+  margin-top:8px;
 }
 
 .legend-dot {
@@ -426,6 +521,13 @@ button:disabled { opacity:.4; cursor:not-allowed; }
   background:var(--blue);
   border-radius:50%;
   margin-right:6px;
+}
+
+.threshold-dot {
+  display:inline-block;
+  width:13px;
+  border-top:2px dashed var(--amber);
+  margin:0 6px 3px 12px;
 }
 
 .chart-footer b { color:#d8e5f6; }
@@ -445,10 +547,7 @@ button:disabled { opacity:.4; cursor:not-allowed; }
   letter-spacing:1.2px;
 }
 
-.bulb {
-  font-size:37px;
-  color:#64758e;
-}
+.bulb { font-size:37px;color:#64758e; }
 
 .light-visual.on .bulb {
   color:var(--amber);
@@ -552,10 +651,7 @@ button:disabled { opacity:.4; cursor:not-allowed; }
 
 .form-input:focus { border-color:var(--blue); }
 
-.form-label {
-  color:#cbd5e1;
-  font-size:11px;
-}
+.form-label { color:#cbd5e1;font-size:11px; }
 
 .bottom-grid {
   display:grid;
@@ -572,10 +668,7 @@ button:disabled { opacity:.4; cursor:not-allowed; }
   border-bottom:1px solid var(--line);
 }
 
-.connect-row:last-child {
-  border:0;
-  padding-bottom:0;
-}
+.connect-row:last-child { border:0;padding-bottom:0; }
 
 .connect-symbol {
   width:31px;
@@ -586,10 +679,7 @@ button:disabled { opacity:.4; cursor:not-allowed; }
   font-size:17px;
 }
 
-.connect-row b {
-  display:block;
-  font-size:11px;
-}
+.connect-row b { display:block;font-size:11px; }
 
 .connect-row small {
   display:block;
@@ -632,10 +722,7 @@ button:disabled { opacity:.4; cursor:not-allowed; }
   color:#c6d4e6;
 }
 
-.event time {
-  color:#7f91a9;
-  white-space:nowrap;
-}
+.event time { color:#7f91a9;white-space:nowrap; }
 
 .text-btn {
   border:0;
@@ -712,20 +799,20 @@ footer span { letter-spacing:.6px; }
   .sidebar { width:205px; }
   .main { padding:25px 22px; }
   .stat-grid { grid-template-columns:repeat(2,1fr); }
+  .chart-visual-grid { grid-template-columns:minmax(0,1fr) 160px; }
 }
 
 @media(max-width:760px) {
   .sidebar { display:none; }
   .main { padding:22px 15px; }
   .content-grid,.bottom-grid { grid-template-columns:1fr; }
-  .welcome-row {
-    align-items:flex-start;
-    flex-direction:column;
-  }
+  .welcome-row { align-items:flex-start;flex-direction:column; }
   .topbar h1 { font-size:22px; }
   .stat-card { padding:14px; }
   .stat-value strong { font-size:23px; }
   .chart-wrap { height:190px; }
+  .chart-visual-grid { grid-template-columns:1fr; }
+  .radar-box { max-width:260px;margin:0 auto;width:100%; }
   footer { flex-direction:column; }
   .date-chip { display:none; }
 }
@@ -734,6 +821,7 @@ footer span { letter-spacing:.6px; }
   .stat-grid { grid-template-columns:1fr 1fr; }
   .admin-grid { grid-template-columns:1fr; }
   .range { padding:6px; }
+  .chart-meta { align-items:flex-start;flex-direction:column; }
 }
 </style>
 </head>
@@ -768,7 +856,6 @@ footer span { letter-spacing:.6px; }
 <div class="app-shell hidden" id="app">
 
   <aside class="sidebar">
-
     <a class="brand" href="#overview">
       <span class="brand-mark">⌂</span>
       <span>smart<span class="brand-light">home</span>
@@ -799,7 +886,6 @@ footer span { letter-spacing:.6px; }
         </div>
       </div>
     </div>
-
   </aside>
 
   <main class="main">
@@ -903,13 +989,52 @@ footer span { letter-spacing:.6px; }
           </div>
         </div>
 
-        <div class="chart-wrap">
-          <canvas id="distanceChart"></canvas>
+        <div class="chart-visual-grid">
+          <div class="chart-wrap">
+            <canvas id="distanceChart"></canvas>
+          </div>
+
+          <!-- ULTRASONIC RADAR -->
+          <div class="radar-box">
+            <div class="radar-heading">
+              <b>ULTRASONIC RADAR</b>
+              <span id="radarStatus">WAITING</span>
+            </div>
+
+            <svg class="radar-svg" viewBox="0 0 240 140" role="img" aria-label="Ultrasonic distance radar">
+              <path class="radar-arc" d="M20 120 A100 100 0 0 1 220 120"/>
+              <path class="radar-arc" d="M45 120 A75 75 0 0 1 195 120"/>
+              <path class="radar-arc" d="M70 120 A50 50 0 0 1 170 120"/>
+              <path class="radar-arc" d="M95 120 A25 25 0 0 1 145 120"/>
+
+              <line class="radar-axis" x1="120" y1="120" x2="20" y2="120"/>
+              <line class="radar-axis" x1="120" y1="120" x2="120" y2="20"/>
+              <line class="radar-axis" x1="120" y1="120" x2="220" y2="120"/>
+
+              <line class="radar-sweep" x1="120" y1="120" x2="120" y2="20"/>
+
+              <circle class="radar-center" cx="120" cy="120" r="4"/>
+              <circle class="radar-target" id="radarTarget" cx="120" cy="120" r="5"/>
+            </svg>
+
+            <div class="radar-reading">
+              <span id="radarDistance">--</span>
+              <small>cm</small>
+            </div>
+
+            <div class="radar-scale">
+              <span>0 cm</span>
+              <span>150 cm</span>
+              <span>300 cm</span>
+            </div>
+
+            <div class="radar-state" id="radarDetail">Waiting for valid sensor data</div>
+          </div>
         </div>
 
         <div class="chart-footer">
           <span><i class="legend-dot"></i> Distance (cm)</span>
-          <span>Threshold: <b id="thresholdLabel">-- cm</b></span>
+          <span><i class="threshold-dot"></i> Threshold: <b id="thresholdLabel">-- cm</b></span>
         </div>
       </article>
 
@@ -933,7 +1058,7 @@ footer span { letter-spacing:.6px; }
           <button class="btn btn-secondary" id="turnOff">Turn OFF</button>
         </div>
 
-        <p class="muted" id="relayControlInfo" style="color:var(--muted);font-size:10px;margin-top:12px">
+        <p id="relayControlInfo" style="color:var(--muted);font-size:10px;margin-top:12px">
           Waiting for operating mode.
         </p>
 
@@ -946,7 +1071,6 @@ footer span { letter-spacing:.6px; }
           </div>
           <span class="mode-badge" id="modeBadge">--</span>
         </div>
-
       </article>
 
     </section>
@@ -1003,7 +1127,6 @@ footer span { letter-spacing:.6px; }
         </div>
 
       </div>
-
     </section>
 
     <!-- OPERATOR MANAGEMENT -->
@@ -1028,7 +1151,6 @@ footer span { letter-spacing:.6px; }
       <p style="color:var(--muted);font-size:10px">
         This changes database access only. It does not create or delete Firebase Authentication accounts.
       </p>
-
     </section>
 
     <!-- CONNECTIVITY + ACTIVITY -->
@@ -1068,7 +1190,6 @@ footer span { letter-spacing:.6px; }
           </div>
           <span class="pending-tag" id="sensorStatus">WAITING</span>
         </div>
-
       </article>
 
       <article class="panel" id="activity">
@@ -1105,7 +1226,6 @@ footer span { letter-spacing:.6px; }
     </footer>
 
     <div id="message"></div>
-
   </main>
 </div>
 
@@ -1157,6 +1277,7 @@ let chart = null;
 let selectedRange = 1;
 let readings = [];
 let lastDeviceUpdate = null;
+let lastReadingTimestamp = null;
 
 const $ = id => document.getElementById(id);
 
@@ -1196,6 +1317,16 @@ function formatTimestamp(timestamp) {
   return new Date(ms).toLocaleString();
 }
 
+function normalizeTimestamp(timestamp) {
+  if (typeof timestamp !== "number" || !Number.isFinite(timestamp)) {
+    return Date.now();
+  }
+
+  return timestamp < 1000000000000
+    ? timestamp * 1000
+    : timestamp;
+}
+
 function addActivity(message) {
   const list = $("activityList");
 
@@ -1230,10 +1361,16 @@ function setText(id, value) {
 function initializeChart() {
   const canvas = $("distanceChart");
 
-  const gradient = canvas.getContext("2d")
-    .createLinearGradient(0, 0, 0, 220);
+  // Prevent creating a second Chart instance after re-login.
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
 
-  gradient.addColorStop(0, "rgba(91,156,255,.25)");
+  const ctx = canvas.getContext("2d");
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+  gradient.addColorStop(0, "rgba(91,156,255,.22)");
   gradient.addColorStop(1, "rgba(91,156,255,0)");
 
   chart = new Chart(canvas, {
@@ -1241,23 +1378,42 @@ function initializeChart() {
 
     data: {
       labels: [],
-      datasets: [{
-        label: "Distance",
-        data: [],
-        borderColor: "#5b9cff",
-        backgroundColor: gradient,
-        fill: true,
-        tension: .35,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        borderWidth: 2
-      }]
+      datasets: [
+        {
+          label: "Distance",
+          data: [],
+          borderColor: "#5b9cff",
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0,
+          pointRadius: 2,
+          pointHoverRadius: 4,
+          pointBackgroundColor: "#5b9cff",
+          borderWidth: 2,
+          spanGaps: false
+        },
+        {
+          label: "Threshold",
+          data: [],
+          borderColor: "#f7bd58",
+          backgroundColor: "transparent",
+          borderDash: [6, 5],
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: false,
+          tension: 0
+        }
+      ]
     },
 
     options: {
       responsive: true,
       maintainAspectRatio: false,
       animation: false,
+      interaction: {
+        intersect: false,
+        mode: "index"
+      },
 
       plugins: {
         legend: { display: false },
@@ -1266,9 +1422,15 @@ function initializeChart() {
           backgroundColor: "#14243a",
           titleColor: "#dceaff",
           bodyColor: "#dceaff",
+
           callbacks: {
-            label: context =>
-              ` ${context.parsed.y.toFixed(2)} cm`
+            label: context => {
+              if (context.parsed.y === null) return "";
+
+              return context.dataset.label === "Threshold"
+                ? ` Threshold: ${context.parsed.y.toFixed(2)} cm`
+                : ` Distance: ${context.parsed.y.toFixed(2)} cm`;
+            }
           }
         }
       },
@@ -1286,19 +1448,25 @@ function initializeChart() {
         },
 
         y: {
+          beginAtZero: true,
           grid: { color: "rgba(143,161,185,.10)" },
           ticks: {
             color: "#71849e",
             font: { size: 9 },
             callback: value => `${value} cm`
           },
-          border: { display: false },
-          suggestedMin: 0
+          border: { display: false }
         }
       }
     }
   });
+
+  updateChart();
 }
+
+// =====================================================
+// SERIAL PLOTTER CHART UPDATE
+// =====================================================
 
 function updateChart() {
   if (!chart) return;
@@ -1310,6 +1478,11 @@ function updateChart() {
     reading => now - reading.time <= windowMs
   );
 
+  const threshold = latestAdminTelemetry?.threshold_cm;
+  const hasThreshold =
+    typeof threshold === "number" &&
+    Number.isFinite(threshold);
+
   chart.data.labels = filtered.map(
     reading => new Date(reading.time).toLocaleTimeString()
   );
@@ -1318,23 +1491,69 @@ function updateChart() {
     reading => reading.distance
   );
 
+  chart.data.datasets[1].data = filtered.map(
+    () => hasThreshold ? threshold : null
+  );
+
   chart.update("none");
 }
 
 function addReading(distance) {
+  const now = Date.now();
+
+  // Add actual sensor measurement.
   readings.push({
-    time: Date.now(),
-    distance
+    time: now,
+    distance: distance
   });
 
-  // Keep up to one hour of in-session readings.
-  const cutoff = Date.now() - 60 * 60 * 1000;
+  // Keep one hour of actual session readings.
+  const cutoff = now - 60 * 60 * 1000;
 
   readings = readings.filter(
     reading => reading.time >= cutoff
   );
 
   updateChart();
+}
+// =====================================================
+// RADAR DISPLAY
+// =====================================================
+
+function updateRadar(distance, valid) {
+  const target = $("radarTarget");
+
+  if (!valid || typeof distance !== "number" || !Number.isFinite(distance)) {
+    target.style.opacity = "0";
+    setText("radarDistance", "--");
+    setText("radarStatus", "NO DATA");
+    setText("radarDetail", "Waiting for valid sensor data");
+    return;
+  }
+
+  // Radar display range: 0 to 300 cm.
+  const maxRange = 300;
+  const clampedDistance = Math.max(0, Math.min(distance, maxRange));
+
+  // SVG semicircle centre is (120,120), radius is 100.
+  // Near = close to the centre; far = close to the outer arc.
+  const radius = (clampedDistance / maxRange) * 100;
+  const angle = -Math.PI / 2;
+
+  const x = 120 + Math.cos(angle) * radius;
+  const y = 120 + Math.sin(angle) * radius;
+
+  target.setAttribute("cx", x.toFixed(2));
+  target.setAttribute("cy", y.toFixed(2));
+  target.style.opacity = "1";
+
+  setText("radarDistance", distance.toFixed(2));
+  setText("radarStatus", "ACTIVE");
+  setText("radarDetail",
+    distance > maxRange
+      ? "Target is outside the 300 cm display range"
+      : "Valid ultrasonic measurement"
+  );
 }
 
 // =====================================================
@@ -1402,6 +1621,7 @@ function updateTelemetry(data) {
 
   if (!data) {
     updateConnectionStatus(false);
+    updateRadar(null, false);
     return;
   }
 
@@ -1434,11 +1654,12 @@ function updateTelemetry(data) {
 
   updateRelayControls();
 
-  // Distance
+  // Ultrasonic distance
   if (
     data.sensor_valid === true &&
     typeof data.distance_cm === "number" &&
-    Number.isFinite(data.distance_cm)
+    Number.isFinite(data.distance_cm) &&
+    data.distance_cm >= 0
   ) {
     const distance = data.distance_cm;
 
@@ -1452,7 +1673,10 @@ function updateTelemetry(data) {
 
     $("sensorStatus").classList.add("online");
 
-    addReading(distance);
+    updateRadar(distance, true);
+
+    // Use the ESP32 timestamp when available.
+    addReading(distance, data.updated_at);
   } else {
     setText("distanceValue", "--");
     $("chartCurrent").innerHTML = `-- <small>cm</small>`;
@@ -1462,6 +1686,8 @@ function updateTelemetry(data) {
     setText("sensorStatus", "INVALID");
 
     $("sensorStatus").classList.remove("online");
+
+    updateRadar(null, false);
   }
 
   // Wi-Fi
@@ -1510,9 +1736,10 @@ function updateAdminTelemetry(data) {
 function updateThresholdDisplay() {
   const threshold = latestAdminTelemetry?.threshold_cm;
 
-  const value = typeof threshold === "number"
-    ? threshold
-    : null;
+  const value = typeof threshold === "number" &&
+    Number.isFinite(threshold)
+      ? threshold
+      : null;
 
   setText(
     "thresholdValue",
@@ -1523,6 +1750,8 @@ function updateThresholdDisplay() {
     "thresholdLabel",
     value === null ? "-- cm" : `${value} cm`
   );
+
+  updateChart();
 }
 
 // =====================================================
@@ -1718,8 +1947,6 @@ async function issueCommand(command) {
       Date.now().toString() + "_" +
       Math.random().toString(36).slice(2, 8),
     created_at: Math.floor(Date.now() / 1000),
-
-    // REQUIRED BY FIREBASE SECURITY RULES
     sender_uid: currentUser.uid
   };
 
@@ -1893,6 +2120,16 @@ auth.onAuthStateChanged(async user => {
   if (!user) {
     $("app").classList.add("hidden");
     $("loginSection").classList.remove("hidden");
+
+    if (chart) {
+      chart.destroy();
+      chart = null;
+    }
+
+    readings = [];
+    lastReadingTimestamp = null;
+    lastDeviceUpdate = null;
+
     showLoginMessage("Please sign in.");
     return;
   }
@@ -1911,6 +2148,7 @@ auth.onAuthStateChanged(async user => {
 
       if (roleSnapshot.val() !== "operator") {
         await auth.signOut();
+
         showLoginMessage(
           "Access denied. Your account is not approved.",
           "danger"
@@ -1944,13 +2182,13 @@ auth.onAuthStateChanged(async user => {
 
     setText("profileEmail", user.email || "Signed in");
 
-    attachListeners();
+    // Reset session-only chart history for a new login.
+    readings = [];
+    lastReadingTimestamp = null;
+    lastDeviceUpdate = null;
 
-    if (currentRole === "admin") {
-      initializeChart();
-    } else {
-      initializeChart();
-    }
+    initializeChart();
+    attachListeners();
 
     showMessage(
       currentRole === "admin"
@@ -1975,8 +2213,8 @@ auth.onAuthStateChanged(async user => {
 // DEVICE CONNECTION WATCHDOG
 // =====================================================
 
-// The dashboard marks the device offline if telemetry stops
-// arriving for more than 30 seconds.
+// Mark the device offline if telemetry stops arriving
+// for more than 30 seconds.
 
 setInterval(() => {
   if (!currentUser || !lastDeviceUpdate) return;
